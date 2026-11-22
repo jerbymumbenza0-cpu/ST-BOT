@@ -1,3 +1,4 @@
+
 const fs = require("fs-extra");
 const { utils } = global;
 
@@ -5,47 +6,31 @@ module.exports = {
 	config: {
 		name: "prefix",
 		version: "1.4",
-		author: "NTKhang",
+		author: "国︱PEDRI ぐ條",
 		countDown: 5,
 		role: 0,
-		description: "Thay đổi dấu lệnh của bot trong box chat của bạn hoặc cả hệ thống bot (chỉ admin bot)",
+		description: "Permet de changer le préfixe du bot dans un groupe ou dans tout le système.",
 		category: "config",
 		guide: {
-			vi: "   {pn} <new prefix>: thay đổi prefix mới trong box chat của bạn"
-				+ "\n   Ví dụ:"
+			fr: "   {pn} <nouveau préfixe> : changer le préfixe de votre groupe"
+				+ "\n   Exemple :"
 				+ "\n    {pn} #"
-				+ "\n\n   {pn} <new prefix> -g: thay đổi prefix mới trong hệ thống bot (chỉ admin bot)"
-				+ "\n   Ví dụ:"
+				+ "\n\n   {pn} <nouveau préfixe> -g : changer le préfixe global (administrateur uniquement)"
+				+ "\n   Exemple :"
 				+ "\n    {pn} # -g"
-				+ "\n\n   {pn} reset: thay đổi prefix trong box chat của bạn về mặc định",
-			en: "   {pn} <new prefix>: change new prefix in your box chat"
-				+ "\n   Example:"
-				+ "\n    {pn} #"
-				+ "\n\n   {pn} <new prefix> -g: change new prefix in system bot (only admin bot)"
-				+ "\n   Example:"
-				+ "\n    {pn} # -g"
-				+ "\n\n   {pn} reset: change prefix in your box chat to default"
+				+ "\n\n   {pn} reset : réinitialiser le préfixe de votre groupe"
 		}
 	},
 
 	langs: {
-		vi: {
-			reset: "Đã reset prefix của bạn về mặc định: %1",
-			onlyAdmin: "Chỉ admin mới có thể thay đổi prefix hệ thống bot",
-			confirmGlobal: "Vui lòng thả cảm xúc bất kỳ vào tin nhắn này để xác nhận thay đổi prefix của toàn bộ hệ thống bot",
-			confirmThisThread: "Vui lòng thả cảm xúc bất kỳ vào tin nhắn này để xác nhận thay đổi prefix trong nhóm chat của bạn",
-			successGlobal: "Đã thay đổi prefix hệ thống bot thành: %1",
-			successThisThread: "Đã thay đổi prefix trong nhóm chat của bạn thành: %1",
-			myPrefix: "🌐 Prefix của hệ thống: %1\n🛸 Prefix của nhóm bạn: %2"
-		},
-		en: {
-			reset: "Your prefix has been reset to default: %1",
-			onlyAdmin: "Only admin can change prefix of system bot",
-			confirmGlobal: "Please react to this message to confirm change prefix of system bot",
-			confirmThisThread: "Please react to this message to confirm change prefix in your box chat",
-			successGlobal: "Changed prefix of system bot to: %1",
-			successThisThread: "Changed prefix in your box chat to: %1",
-			myPrefix: "🌐 System prefix: %1\n🛸 Your box chat prefix: %2"
+		fr: {
+			reset: "Votre préfixe a été réinitialisé : %1",
+			onlyAdmin: "Seul l'administrateur peut changer le préfixe global du bot.",
+			confirmGlobal: "Veuillez réagir à ce message pour confirmer le changement du préfixe global.",
+			confirmThisThread: "Veuillez réagir à ce message pour confirmer le changement du préfixe de votre groupe.",
+			successGlobal: "Le préfixe global du bot a été changé en : %1",
+			successThisThread: "Le préfixe de votre groupe a été changé en : %1",
+			myPrefix: "🌐 Préfixe global du bot : %1\n🛸 Préfixe de votre groupe : %2"
 		}
 	},
 
@@ -101,3 +86,4 @@ module.exports = {
 			};
 	}
 };
+										  
