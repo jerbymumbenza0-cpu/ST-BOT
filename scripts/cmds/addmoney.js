@@ -3,7 +3,7 @@ module.exports = {
         name: "addmoney",
         aliases: [],
         version: "2.4.78",
-        author: "ST | Sheikh Tamim",
+        author: "国︱PEDRI ぐ條",
         countDown: 5,
         role: 2,
         shortDescription: "Add money to another user's balance",
