@@ -28,7 +28,7 @@
   },
   "antiInbox": true,
   "nickNameBot": "Goat-pedro",
-  "prefix": "#",
+  "prefix": "!",
   "usePrefix": {
     "enable": true,
     "adminUsePrefix": {
