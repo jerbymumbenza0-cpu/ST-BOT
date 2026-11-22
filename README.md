@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🐐 ST-BOT - By Sheikh Tamim
+# 🐐 ST-BOT - By 国︱PEDRI ぐ條
 
 <img src="./dashboard/images/st.png" alt="ST-Bot Logo" width="200" height="200" style="border-radius: 50%;">
 
@@ -572,7 +572,7 @@ If you find this project helpful:
 
 **Happy Botting! 🤖✨**
 
-*Made with ❤️ by Sheikh Tamim*
+*Made with ❤️ 国︱PEDRI ぐ條*
 
 **GitHub:** [sheikhtamimlover/ST-BOT](https://github.com/sheikhtamimlover/ST-BOT)  
 **ST-FCA:** [sheikhtamimlover/ST-FCA](https://github.com/sheikhtamimlover/ST-FCA)
