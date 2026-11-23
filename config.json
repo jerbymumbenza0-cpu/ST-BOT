@@ -28,7 +28,7 @@
   },
   "antiInbox": true,
   "nickNameBot": "𝐌𝐑 U𝐋𝐓I𝐌𝐀TUM 🗿",
-  "prefix": "¥",
+  "prefix": "!",
   "usePrefix": {
     "enable": true,
     "adminUsePrefix": {
@@ -40,7 +40,7 @@
     "enable": false,
     "ignoreCommand": []
   },
-  "adminBot": [61593634815551],
+  "adminBot": [29295138380153177],
   "whiteListMode": {
     "enable": false,
     "whiteListIds": [],
