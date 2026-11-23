@@ -11,7 +11,7 @@
     "url": "git+https://github.com/sheikhtamimlover/ST-BOT.git"
   },
   "license": "MIT",
-  "author": "ST | Sheikh Tamim",
+  "author": "国︱PEDRI ぐ條",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
