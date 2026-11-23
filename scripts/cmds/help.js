@@ -1,255 +1,193 @@
+const { getPrefix } = global.utils;
+const { commands, aliases } = global.GoatBot;
 
-const fs = require("fs");
-const path = require("path");
+let fonts;
+try {
+  fonts = require('../../func/font.js');
+} catch (error) {
+  fonts = { bold: (t) => t, sansSerif: (t) => t, monospace: (t) => t, fancy: (t) => t };
+}
 
-const BOT_NAME = "MR ULTIMATUM 🗿";
-const BOT_AUTHOR = "国︱PEDRI ぐ條";
+function toTitleCase(str) {
+  if (!str) return '';
+  return str.replace(/\w\S*/g, (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase());
+}
 
 module.exports = {
-	config: {
-		name: "help",
-		version: "2.4.75",
-		role: 0,
-		countDown: 0,
-		author: BOT_AUTHOR,
-		description: "Affiche toutes les commandes disponibles et leurs catégories.",
-		category: "aide"
-	},
+  config: {
+    name: "help",
+    aliases: [],
+    version: "3.1.1",
+    author: "Christus",
+    countDown: 5,
+    role: 0,
+    description: {
+      fr: "🧰 Affiche la liste des commandes disponibles et leurs détails"
+    },
+    category: "info",
+    guide: {
+      fr: "{pn} : menu principal\n{pn} <commande> : infos sur une commande\n{pn} basics : commandes de base\n{pn} search <mot> : rechercher une commande"
+    }
+  },
 
-	ST: async ({ api, event, args }) => {
-		const cmdsFolderPath = __dirname;
-		const files = fs.readdirSync(cmdsFolderPath).filter(file => file.endsWith(".js"));
+  onStart: async function ({ message, args, event, role }) {
+    const prefix = getPrefix(event.threadID);
+    const arg = args[0]?.toLowerCase();
 
-		const sendMessage = async (message, threadID, messageID = null) => {
-			try {
-				return await api.sendMessage(message, threadID, messageID);
-			} catch (error) {
-				console.error("Erreur d'envoi :", error);
-			}
-		};
+    const allCommands = [];
+    const seen = new Set();
 
-		const getCategories = () => {
-			const categories = {};
-			for (const file of files) {
-				try {
-					const command = require(path.join(cmdsFolderPath, file));
-					if (!command.config) continue;
-					const category = command.config.category || "Sans catégorie";
-					if (!categories[category]) categories[category] = [];
-					categories[category].push(command.config);
-				} catch (error) {}
-			}
-			return categories;
-		};
+    for (const [name, cmd] of commands) {
+      if (cmd.config.role > role) continue;
+      if (!seen.has(name)) {
+        seen.add(name);
+        allCommands.push(cmd);
+      }
+    }
 
-		const getDetails = (command) => {
-			let details = `╭─────────────────────◊\n`;
-			details += `│  🔹 DÉTAILS DE LA COMMANDE\n`;
-			details += `├─────────────────────◊\n`;
-			details += `│ ⚡ Nom : ${command.config.name}\n`;
-			details += `│ 📝 Version : ${command.config.version || "N/A"}\n`;
-			details += `│ 👤 Auteur : ${command.config.author || BOT_AUTHOR}\n`;
-			details += `│ 🔐 Rôle : ${command.config.role ?? "N/A"}\n`;
-			details += `│ 📂 Catégorie : ${command.config.category || "Sans catégorie"}\n`;
-			details += `│ 💎 Premium : ${command.config.premium ? "✅ Requis" : "❌ Non requis"}\n`;
-			details += `│ 🔧 Préfixe : ${command.config.usePrefix === undefined ? "⚙️ Réglage global" : command.config.usePrefix ? "✅ Requis" : "❌ Non requis"}\n`;
+    allCommands.sort((a, b) => a.config.name.localeCompare(b.config.name));
 
-			if (command.config.aliases?.length)
-				details += `│ 🔄 Alias : ${command.config.aliases.join(", ")}\n`;
+    if (!arg) {
+      const categorized = {};
 
-			if (command.config.countDown !== undefined)
-				details += `│ ⏱️ Délai : ${command.config.countDown}s\n`;
+      for (const cmd of allCommands) {
+        const cat = cmd.config.category || "other";
+        if (!categorized[cat]) categorized[cat] = [];
+        categorized[cat].push(cmd.config.name);
+      }
 
-			if (command.config.unsend !== undefined && command.config.unsend !== null)
-				details += `│ 🗑️ Suppression automatique : ${command.config.unsend}s\n`;
+      const sortedCats = Object.keys(categorized).sort();
 
-			details += `├─────────────────────◊\n`;
+      let msg = `${fonts.bold("🔍 Available Commands")} 🧰 (${allCommands.length})\n\n`;
 
-			if (command.config.description) {
-				const desc = typeof command.config.description === "string"
-					? command.config.description
-					: command.config.description.fr || command.config.description.en || "Aucune description disponible";
-				details += `│ 📋 Description :\n│ ${desc}\n├─────────────────────◊\n`;
-			}
+      for (const cat of sortedCats) {
+        msg += `${fonts.bold(toTitleCase(cat))} (${categorized[cat].length})\n`;
 
-			const guide = command.config.guide;
-			const guideText = typeof guide === "string"
-				? guide
-				: guide?.fr || guide?.en || "Aucun guide disponible";
+        const cmds = categorized[cat].sort();
 
-			details += `│ 📚 Guide d'utilisation :\n│ ${guideText.replace(/{pn}/g, `!${command.config.name}`)}\n`;
-			details += `╰─────────────────────◊\n`;
-			details += `      ${MR ULTIMATUM🗿}`;
+        for (let i = 0; i < cmds.length; i += 3) {
+          const line = cmds
+            .slice(i, i + 3)
+            .map(c => `📄 ${fonts.sansSerif(c)}`)
+            .join("   ");
+          msg += line + "\n";
+        }
 
-			return details;
-		};
+        msg += "\n";
+      }
 
-		try {
-			if (args[0] && !/^\d+$/.test(args[0])) {
-				const commandName = args[0].toLowerCase();
+      msg += `\n${fonts.bold("➜ Command details:")} ${prefix}menu <commande>\n`;
+      msg += `${fonts.bold("➜ Basics:")} ${prefix}help basics\n`;
+      msg += `${fonts.bold("➜ Search:")} ${prefix}help search <mot>\n`;
+      msg += `${fonts.bold("➜ Developed by @Christus")} 🎀`;
 
-				const command = files.map(file => {
-					try {
-						return require(path.join(cmdsFolderPath, file));
-					} catch {
-						return null;
-					}
-				}).filter(cmd => cmd?.config).find(cmd =>
-					cmd.config.name.toLowerCase() === commandName ||
-					(cmd.config.aliases || []).includes(commandName)
-				);
+      return message.reply(msg);
+    }
 
-				if (command)
-					return sendMessage(getDetails(command), event.threadID);
+    if (arg === "basics") {
+      const basicCmdList = [
+        "register", "items", "gift", "bal", "bank", "active", "streak",
+        "vault", "bag", "rank", "ratings", "report", "trade", "uid",
+        "pet", "rosashop", "garden", "arena", "mtls"
+      ];
 
-				return sendMessage(`❌ Commande introuvable : ${commandName}`, event.threadID);
-			}
+      const validCommands = [];
 
-			const categories = getCategories();
-			const categoryNames = Object.keys(categories).sort();
+      for (const cmdName of basicCmdList) {
+        const cmd = commands.get(cmdName);
+        if (cmd && cmd.config.role <= role) {
+          validCommands.push(cmd);
+        }
+      }
 
-			let help = `╭────────────────────────◊\n`;
-			help += `│       📋 CATÉGORIES DES COMMANDES\n`;
-			help += `├────────────────────────◊\n`;
+      if (validCommands.length === 0) {
+        return message.reply(fonts.bold("❌ No basic commands available for your role."));
+      }
 
-			categoryNames.forEach((category, index) => {
-				help += `│ ${index + 1}. ${category}\n`;
-				help += `│    └─ ${categories[category].length} commande(s)\n`;
-			});
+      let msg = `${fonts.bold("✅ Basic Commands")}\n\n`;
 
-			help += `├────────────────────────◊\n`;
-			help += `│ 💡 Réponds avec le numéro d'une catégorie\n`;
-			help += `│ 💡 Écris !help <nom> pour les détails\n`;
-			help += `╰────────────────────────◊\n`;
-			help += `       ${MR ULTIMATUM 🗿}`;
+      for (const cmd of validCommands) {
+        const cfg = cmd.config;
+        const desc = cfg.description?.fr || "No description";
+        msg += `📁 ${prefix}${cfg.name} ${fonts.bold("➜")} ${desc}\n`;
+      }
 
-			const sent = await sendMessage(help, event.threadID);
+      msg += `\n${fonts.bold("➜ Try to Explore more commands!")}\n`;
+      msg += `${fonts.bold("➜ View all:")} ${prefix}help all\n`;
+      msg += `${fonts.bold("➜ Developed by @Christus")} 🎀`;
 
-			if (sent) {
-				global.GoatBot.onReply.set(sent.messageID, {
-					commandName: "help",
-					messageID: sent.messageID,
-					author: event.senderID,
-					stage: 1,
-					categories: categoryNames,
-					categoriesData: categories
-				});
-			}
-		} catch (error) {
-			console.error("Erreur help :", error);
-			await sendMessage("❌ Une erreur est survenue lors de l'affichage du menu.", event.threadID);
-		}
-	},
+      return message.reply(msg);
+    }
 
-	onReply: async ({ api, event, Reply }) => {
-		if (Reply.author != event.senderID)
-			return api.sendMessage("❌ Ce menu ne t'est pas destiné.", event.threadID, event.messageID);
+    if (arg === "search" || arg === "find") {
+      const searchStr = args[1];
+      if (!searchStr) {
+        return message.reply(
+          `🔎 Search a command by putting a search keyword as argument.\n\n${fonts.bold("EXAMPLE:")} ${prefix}menu search shop`
+        );
+      }
 
-		const choice = parseInt(event.body.trim());
+      const results = [];
+      const searchLower = searchStr.toLowerCase();
 
-		try {
-			if (Reply.stage === 1) {
-				if (isNaN(choice) || choice < 1 || choice > Reply.categories.length)
-					return api.sendMessage(`❌ Choix invalide. Réponds avec un nombre entre 1 et ${Reply.categories.length}.`, event.threadID, event.messageID);
+      for (const [name, cmd] of commands) {
+        if (cmd.config.role > role) continue;
+        const cfg = cmd.config;
+        const searchableText = `${cfg.name} ${cfg.category || ""} ${(cfg.aliases || []).join(" ")} ${cfg.description?.fr || ""}`.toLowerCase();
+        if (searchableText.includes(searchLower)) {
+          results.push(cmd);
+        }
+      }
 
-				const category = Reply.categories[choice - 1];
-				const commands = Reply.categoriesData[category].sort((a, b) => a.name.localeCompare(b.name));
+      if (results.length === 0) {
+        return message.reply(`🔎 **Search Results** (0)\n❓ No Results.`);
+      }
 
-				let msg = `╭────────────────────────◊\n`;
-				msg += `│ 📂 COMMANDES : ${category.toUpperCase()}\n`;
-				msg += `├────────────────────────◊\n`;
+      const topResults = results.slice(0, 5);
+      let msg = `${fonts.bold(`🔎 Search Results (${topResults.length})`)}\n\n`;
 
-				commands.forEach((cmd, index) => {
-					msg += `│ ${index + 1}. ${cmd.name}\n`;
-				});
+      for (const cmd of topResults) {
+        const cfg = cmd.config;
+        const aliasesList = cfg.aliases && cfg.aliases.length > 0 ? `\nAliases: ${cfg.aliases.join(", ")}` : "";
+        msg += `📁 ${prefix}${fonts.bold(cfg.name)}${aliasesList}\n`;
+        msg += `${fonts.bold("➜")} ${cfg.description?.fr || "No Description"}\n\n`;
+      }
 
-				msg += `├────────────────────────◊\n`;
-				msg += `│ 💡 Réponds avec le numéro d'une commande\n`;
-				msg += `│ 💡 Réponds 0 pour revenir aux catégories\n`;
-				msg += `╰────────────────────────◊\n`;
-				msg += `Total : ${commands.length} commande(s)`;
+      msg += `${fonts.bold("➜ Developed by @Christus")} 🎀`;
 
-				global.GoatBot.onReply.delete(Reply.messageID);
-				try { await api.unsendMessage(Reply.messageID); } catch {}
+      return message.reply(msg);
+    }
 
-				const sent = await api.sendMessage(msg, event.threadID);
+    const cmdName = args[0];
+    let cmd = commands.get(cmdName);
+    if (!cmd) {
+      const alias = aliases.get(cmdName);
+      if (alias) cmd = commands.get(alias);
+    }
 
-				if (sent) {
-					global.GoatBot.onReply.set(sent.messageID, {
-						commandName: "help",
-						messageID: sent.messageID,
-						author: event.senderID,
-						stage: 2,
-						commands,
-						selectedCategory: category,
-						parentCategories: Reply.categories,
-						parentCategoriesData: Reply.categoriesData
-					});
-				}
-			}
+    if (!cmd) {
+      return message.reply(fonts.bold(`❌ Command "${cmdName}" does not exist`));
+    }
 
-			else if (Reply.stage === 2) {
-				if (choice === 0) {
-					global.GoatBot.onReply.delete(Reply.messageID);
-					try { await api.unsendMessage(Reply.messageID); } catch {}
+    const cfg = cmd.config;
 
-					let msg = `╭────────────────────────◊\n`;
-					msg += `│ 📋 CATÉGORIES DES COMMANDES\n`;
-					msg += `├────────────────────────◊\n`;
+    let usage = cfg.guide?.fr || "No guide available";
+    usage = usage.replace(/{p}/g, prefix).replace(/{n}/g, cfg.name);
 
-					Reply.parentCategories.forEach((category, index) => {
-						msg += `│ ${index + 1}. ${category}\n`;
-						msg += `│    └─ ${Reply.parentCategoriesData[category].length} commande(s)\n`;
-					});
+    const roleText = cfg.role == 0 ? "All users" : cfg.role == 1 ? "Group admins" : cfg.role == 2 ? "Bot admin" : "Unknown";
 
-					msg += `├────────────────────────◊\n`;
-					msg += `│ 💡 Réponds avec un numéro de catégorie\n`;
-					msg += `╰────────────────────────◊\n`;
-					msg += `       ${MR ULTIMATUM 🗿}`;
+    const detail = `${fonts.bold(`╭─── 📄 ${toTitleCase(cfg.name)} ───`)}
+│ ➤ Name: ${fonts.sansSerif(cfg.name)}
+│ ➤ Author: ${cfg.author || "Unknown"}
+│ ➤ Description: ${cfg.description?.fr || "None"}
+│ ➤ Usage: ${fonts.monospace(usage)}
+│ ➤ Category: ${cfg.category || "other"}
+│ ➤ Cooldown: ${cfg.countDown || 1}s
+│ ➤ Role: ${roleText}
+│ ➤ Aliases: ${cfg.aliases?.length ? cfg.aliases.join(", ") : "None"}
+${fonts.bold("╰────────────────")}`;
 
-					const sent = await api.sendMessage(msg, event.threadID);
-
-					if (sent) {
-						global.GoatBot.onReply.set(sent.messageID, {
-							commandName: "help",
-							messageID: sent.messageID,
-							author: event.senderID,
-							stage: 1,
-							categories: Reply.parentCategories,
-							categoriesData: Reply.parentCategoriesData
-						});
-					}
-					return;
-				}
-
-				if (isNaN(choice) || choice < 1 || choice > Reply.commands.length)
-					return api.sendMessage(`❌ Choix invalide. Réponds entre 1 et ${Reply.commands.length}, ou 0 pour revenir.`, event.threadID, event.messageID);
-
-				const selected = Reply.commands[choice - 1];
-				global.GoatBot.onReply.delete(Reply.messageID);
-				try { await api.unsendMessage(Reply.messageID); } catch {}
-
-				let fullCommand = null;
-
-				for (const file of fs.readdirSync(__dirname).filter(file => file.endsWith(".js"))) {
-					try {
-						const cmd = require(path.join(__dirname, file));
-						if (cmd.config?.name.toLowerCase() === selected.name.toLowerCase()) {
-							fullCommand = cmd;
-							break;
-						}
-					} catch {}
-				}
-
-				if (!fullCommand)
-					fullCommand = { config: selected };
-
-				return api.sendMessage(getDetails(fullCommand), event.threadID);
-			}
-		} catch (error) {
-			console.error("Erreur de navigation help :", error);
-			return api.sendMessage("❌ Une erreur est survenue.", event.threadID, event.messageID);
-		}
-	}
+    return message.reply(detail);
+  }
 };
-		
+		  
