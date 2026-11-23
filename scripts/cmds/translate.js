@@ -6,7 +6,7 @@ module.exports = {
 		name: "translate",
 		aliases: ["trans"],
 		version: "1.5",
-		author: "国︱PEDRI ぐ條",
+		author: "Aminul Sardar",
 		countDown: 5,
 		role: 0,
 		description: {
