@@ -2,7 +2,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const BOT_NAME = "꧁༺ GOAT-PEDRO ༻꧂";
+const BOT_NAME = "MR ULTIMATUM 🗿";
 const BOT_AUTHOR = "国︱PEDRI ぐ條";
 
 module.exports = {
@@ -79,7 +79,7 @@ module.exports = {
 
 			details += `│ 📚 Guide d'utilisation :\n│ ${guideText.replace(/{pn}/g, `!${command.config.name}`)}\n`;
 			details += `╰─────────────────────◊\n`;
-			details += `     💫 ${BOT_NAME}`;
+			details += `      ${MR ULTIMATUM🗿}`;
 
 			return details;
 		};
@@ -121,7 +121,7 @@ module.exports = {
 			help += `│ 💡 Réponds avec le numéro d'une catégorie\n`;
 			help += `│ 💡 Écris !help <nom> pour les détails\n`;
 			help += `╰────────────────────────◊\n`;
-			help += `       💫 ${BOT_NAME}`;
+			help += `       ${MR ULTIMATUM 🗿}`;
 
 			const sent = await sendMessage(help, event.threadID);
 
@@ -205,7 +205,7 @@ module.exports = {
 					msg += `├────────────────────────◊\n`;
 					msg += `│ 💡 Réponds avec un numéro de catégorie\n`;
 					msg += `╰────────────────────────◊\n`;
-					msg += `       💫 ${BOT_NAME}`;
+					msg += `       ${MR ULTIMATUM 🗿}`;
 
 					const sent = await api.sendMessage(msg, event.threadID);
 
