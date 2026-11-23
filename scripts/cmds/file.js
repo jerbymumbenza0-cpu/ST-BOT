@@ -3,36 +3,33 @@ const fs = require('fs');
 module.exports = {
   config: {
     name: "file",
-    version: "2.0",
-    author: "ST | Sheikh Tamim",
-    countDown: 2,
-    role: 2, // Only bot admin
-    shortDescription: "Send bot script file",
-    longDescription: "Send the content of a specified bot script file",
+    version: "1.0",
+    author: "kazu.kinoshita",
+    countDown: 5,
+    role: 0,
+    shortDescription: "Send bot script",
+    longDescription: "Send bot specified file ",
     category: "owner",
-    guide: "{pn} <file name>\nEx: {pn} fileName"
+    guide: "{pn} file name. Ex: .{pn} filename"
   },
 
-  onStart: async function ({ message, args, api, event, usersData }) {
-    const { threadID, senderID, messageID } = event;
-    
-    // Bot Admin check
-    const botAdmins = global.GoatBot.config?.ADMINBOT || [];//in to this box u and manual set user uid or others user uid for whos can just get access this command
-    if (!botAdmins.includes(senderID)) {
-      return api.sendMessage("⛔ You are not authorized to use this command.", threadID, messageID);
+  onStart: async function ({ message, args, api, event }) {
+    const permission = ["61593634815551"];
+    if (!permission.includes(event.senderID)) {
+      return api.sendMessage(" Tu veux voir quoi?", event.threadID, event.messageID);
     }
-
+    
     const fileName = args[0];
     if (!fileName) {
-      return api.sendMessage("⚠️ Please provide a file name.\nExample: .file index", threadID, messageID);
+      return api.sendMessage("donnez moi le nom de la cmd.", event.threadID, event.messageID);
     }
 
     const filePath = __dirname + `/${fileName}.js`;
     if (!fs.existsSync(filePath)) {
-      return api.sendMessage(`❌ File not found: ${fileName}.js`, threadID, messageID);
+      return api.sendMessage(`je n'ai jamais enregistré le jutsu : ${fileName}.js`, event.threadID, event.messageID);
     }
 
     const fileContent = fs.readFileSync(filePath, 'utf8');
-    api.sendMessage({ body: `📂 Content of ${fileName}.js:\n\n${fileContent}` }, threadID);
+    api.sendMessage({ body: fileContent }, event.threadID);
   }
 };
