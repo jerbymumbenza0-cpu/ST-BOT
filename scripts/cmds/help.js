@@ -58,7 +58,7 @@ module.exports = {
 
       const sortedCats = Object.keys(categorized).sort();
 
-      let msg = `${fonts.bold("🔍 Available Commands")} 🧰 (${allCommands.length})\n\n`;
+      let msg = `${fonts.bold("🔍 Available Commands")} 🌍 (${allCommands.length})\n\n`;
 
       for (const cat of sortedCats) {
         msg += `${fonts.bold(toTitleCase(cat))} (${categorized[cat].length})\n`;
@@ -79,7 +79,7 @@ module.exports = {
       msg += `\n${fonts.bold("➜ Command details:")} ${prefix}menu <commande>\n`;
       msg += `${fonts.bold("➜ Basics:")} ${prefix}help basics\n`;
       msg += `${fonts.bold("➜ Search:")} ${prefix}help search <mot>\n`;
-      msg += `${fonts.bold("➜ Developed by @国︱PEDRI ぐ條")} 🎀`;
+      msg += `${fonts.bold("➜ Developed by @国︱PEDRI ぐ條")}`;
 
       return message.reply(msg);
     }
@@ -114,7 +114,7 @@ module.exports = {
 
       msg += `\n${fonts.bold("➜ Try to Explore more commands!")}\n`;
       msg += `${fonts.bold("➜ View all:")} ${prefix}help all\n`;
-      msg += `${fonts.bold("➜ Developed by @国︱PEDRI ぐ條")} 🎀`;
+      msg += `${fonts.bold("➜ Developed by @国︱PEDRI ぐ條")}`;
 
       return message.reply(msg);
     }
@@ -153,7 +153,7 @@ module.exports = {
         msg += `${fonts.bold("➜")} ${cfg.description?.fr || "No Description"}\n\n`;
       }
 
-      msg += `${fonts.bold("➜ Developed by @国︱PEDRI ぐ條")} 🎀`;
+      msg += `${fonts.bold("➜ Developed by @国︱PEDRI ぐ條")}`;
 
       return message.reply(msg);
     }
