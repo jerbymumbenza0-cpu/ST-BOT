@@ -40,7 +40,13 @@
     "enable": false,
     "ignoreCommand": []
   },
-  "adminBot": [61593634815551],
+  "creator": ["61593634815551"],
+"developer": ["61593634815551"],
+"adminBot": ["61593634815551"],
+"premium": ["61593634815551"],
+"vipuser": ["61593634815551"],
+"premiumUsers": ["61593634815551"],
+"devUsers": ["61593634815551"],
   "whiteListMode": {
     "enable": false,
     "whiteListIds": [],
