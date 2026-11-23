@@ -1,82 +1,122 @@
+module.exports = {
+  config: {
+    name: "accept",
+    aliases: ["acceptfriend"],
+    version: "2.0.0",
+    author: "国︱PEDRI ぐ條",
+    countDown: 5,
+    role: 2,
+    shortDescription: {
+      en: "Manage friend requests",
+      fr: "Gérer les demandes d'amis"
+    },
+    longDescription: {
+      en: "List and accept friend requests",
+      fr: "Afficher et accepter les demandes d'amis"
+    },
+    category: "owner",
+    guide: {
+      en: "{pn} - List requests\n{pn} all - Accept all"
+    }
+  },
 
-module.exports.config = {
-  name: "accept",
-  version: "1.0.0",
-  hasPermssion: 2,
-  credits: "国︱PEDRI ぐ條",
-  description: "Gérer les demandes d'amis Facebook",
-  commandCategory: "Admin",
-  usages: "accept | accept 1 | accept all",
-  cooldowns: 5
-};
+  onStart: async function ({ api, event, args, commandName }) {
+    if (!global.GoatBot.friendRequests)
+      global.GoatBot.friendRequests = new Map();
 
-module.exports.run = async function ({ api, event, args }) {
-  try {
-    // Récupérer les demandes d'amis
-    const requests = await new Promise((resolve, reject) => {
-      api.getFriendRequests((err, data) => {
-        if (err) return reject(err);
-        resolve(data || []);
+    const requests = [...global.GoatBot.friendRequests.values()];
+
+    if (!requests.length)
+      return api.sendMessage(
+        "📭 Aucune nouvelle demande capturée.\nLe bot doit rester connecté pour détecter les nouvelles demandes.",
+        event.threadID
+      );
+
+    if (args[0] === "all") {
+      return acceptRequests(api, requests, event.threadID);
+    }
+
+    const index = Number(args[0]);
+
+    if (args[0]) {
+      if (!Number.isInteger(index) || index < 1 || index > requests.length)
+        return api.sendMessage("❌ Numéro invalide.", event.threadID);
+
+      return acceptRequests(api, [requests[index - 1]], event.threadID);
+    }
+
+    let msg = "📩 DEMANDES D'AMIS\n━━━━━━━━━━━━━━\n";
+
+    requests.forEach((r, i) => {
+      msg += `\n${i + 1}. ${r.name || r.userID}`;
+    });
+
+    msg += "\n\n━━━━━━━━━━━━━━";
+    msg += "\nRéponds avec un numéro pour accepter.";
+    msg += "\nÉcris all pour tout accepter.";
+    msg += "\nÉcris cancel pour annuler.";
+
+    return api.sendMessage(msg, event.threadID, (err, info) => {
+      if (err || !info) return;
+
+      global.GoatBot.onReply.set(info.messageID, {
+        commandName,
+        author: String(event.senderID),
+        messageID: info.messageID,
+        requests
       });
     });
+  },
 
-    if (!requests.length) {
-      return api.sendMessage(
-        "✅ Aucune demande d'ami en attente.",
-        event.threadID
-      );
+  onReply: async function ({ api, event, Reply }) {
+    if (String(event.senderID) !== String(Reply.author))
+      return;
+
+    const answer = String(event.body || "").trim().toLowerCase();
+
+    if (answer === "cancel") {
+      global.GoatBot.onReply.delete(Reply.messageID);
+      return api.sendMessage("✅ Opération annulée.", event.threadID);
     }
 
-    // Accepter toutes les demandes
-    if (args[0] === "all") {
-      for (const request of requests) {
-        await api.handleFriendRequest(request.userID, true);
-      }
-
-      return api.sendMessage(
-        `✅ ${requests.length} demande(s) acceptée(s).`,
-        event.threadID
-      );
+    if (answer === "all") {
+      global.GoatBot.onReply.delete(Reply.messageID);
+      return acceptRequests(api, Reply.requests, event.threadID);
     }
 
-    // Accepter une demande précise
-    if (args[0]) {
-      const index = parseInt(args[0], 10) - 1;
+    const index = Number(answer);
 
-      if (isNaN(index) || !requests[index]) {
-        return api.sendMessage(
-          "❌ Numéro de demande invalide.",
-          event.threadID
-        );
-      }
+    if (!Number.isInteger(index) || index < 1 || index > Reply.requests.length)
+      return api.sendMessage("❌ Numéro invalide.", event.threadID);
 
-      await api.handleFriendRequest(requests[index].userID, true);
+    global.GoatBot.onReply.delete(Reply.messageID);
 
-      return api.sendMessage(
-        `✅ Demande numéro ${index + 1} acceptée.`,
-        event.threadID
-      );
-    }
-
-    // Afficher la liste
-    let message = "📩 LISTE DES DEMANDES D'AMIS\n\n";
-
-    requests.forEach((request, index) => {
-      message += `${index + 1}. ${request.fullName || request.userID}\n`;
-    });
-
-    message += "\n━━━━━━━━━━━━━━";
-    message += "\nPour accepter : accept 1";
-    message += "\nPour tout accepter : accept all";
-
-    return api.sendMessage(message, event.threadID);
-
-  } catch (error) {
-    console.error(error);
-    return api.sendMessage(
-      "❌ Erreur : impossible de récupérer ou traiter les demandes.",
+    return acceptRequests(
+      api,
+      [Reply.requests[index - 1]],
       event.threadID
     );
   }
 };
-    
+
+async function acceptRequests(api, requests, threadID) {
+  let success = 0;
+  let failed = 0;
+
+  for (const request of requests) {
+    try {
+      await api.handleFriendRequest(String(request.userID), true);
+      global.GoatBot.friendRequests.delete(String(request.userID));
+      success++;
+    } catch (error) {
+      console.error("[ACCEPT]", error);
+      failed++;
+    }
+  }
+
+  return api.sendMessage(
+    `✅ Acceptées : ${success}\n❌ Échecs : ${failed}`,
+    threadID
+  );
+        }
+      
