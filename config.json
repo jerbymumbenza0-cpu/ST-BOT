@@ -62,8 +62,8 @@
     "type": "json",
     "uriMongodb": "",
     "autoSyncWhenStart": true,
-    "autoRefreshThreadInfoFirstTime": true,
-    "notes": "Utilisation du stockage JSON local sans MongoDB."
+    "autoRefreshThreadInfoFirstTime": false,
+    "notes": "Utilisation du stockage JSON local et désactivation de la mise à jour auto des groupes au démarrage."
   },
   "timeZone": "Africa/Kinshasa",
   "dashBoard": {
@@ -298,5 +298,4 @@
     ],
     "notes": "GitHub integration."
   }
-}
-  
+  }
