@@ -3,7 +3,7 @@ const { getTime, drive } = global.utils;
 module.exports = {
 	config: {
 		name: "leave",
-		version: "2.4.78",
+		version: "2.4.80",
 		author: "NTKhang | enhanced by ST",
 		category: "events"
 	},
@@ -14,18 +14,18 @@ module.exports = {
 			session2: "trưa",
 			session3: "chiều",
 			session4: "tối",
-			leaveType1: "tự rời",
-			leaveType2: "bị kick",
-			defaultLeaveMessage: "{userName} đã {type} khỏi nhóm"
+			leaveType1: "tự rời nhóm",
+			leaveType2: "bị {authorName} xóa khỏi nhóm",
+			defaultLeaveMessage: "╭━━━━━━━━━━━━━━━━━━━━━━╮\n    👋 Tạm biệt {userName}!\n╰━━━━━━━━━━━━━━━━━━━━━━╯\n\n➤ {userName} đã {type} 《 {boxName} 》\n\n╭──「 📉 Thông tin rời nhóm 」\n│ ▸ Trạng thái: {type}\n│ ▸ Giờ: {time}h\n│ ▸ Buổi: {session}\n╰────────────────────"
 		},
 		en: {
 			session1: "morning",
 			session2: "noon",
 			session3: "afternoon",
 			session4: "evening",
-			leaveType1: "left",
-			leaveType2: "was kicked from",
-			defaultLeaveMessage: "{userName} {type} the group"
+			leaveType1: "left the group",
+			leaveType2: "was removed from the group by {authorName}",
+			defaultLeaveMessage: `╭━━━━━━━━━━━━━━━━━━━━━━╮\n    👋 Bye {userName}!\n╰━━━━━━━━━━━━━━━━━━━━━━╯\n\n➤ {userName} {type} 《 {boxName} 》\n\n╭──「 📉 Exit Info 」\n│ ▸ Status: {type}\n│ ▸ Hour: {time}h\n│ ▸ Time: {session}\n╰────────────────────`
 		}
 	},
 
@@ -34,7 +34,7 @@ module.exports = {
 			return async function () {
 				const { threadID } = event;
 				const threadData = await threadsData.get(threadID);
-				
+
 				// Check if leave message is enabled for this thread
 				// Default is true (enabled) if not explicitly disabled
 				if (threadData.settings && threadData.settings.sendLeaveMessage === false)
@@ -46,9 +46,15 @@ module.exports = {
 
 				const threadName = threadData.threadName;
 				const userName = await usersData.getName(leftParticipantFbId);
+				const isSelfLeave = leftParticipantFbId == event.author;
+				const authorName = isSelfLeave ? userName : await usersData.getName(event.author);
+
+				const leaveType = (isSelfLeave ? getLang("leaveType1") : getLang("leaveType2"))
+					.replace(/\{authorName\}/g, authorName);
 
 				// {userName}   : name of the user who left the group
-				// {type}       : type of the message (leave)
+				// {authorName} : name of the user who kicked/removed the member
+				// {type}       : type of the message (leave / removed)
 				// {boxName}    : name of the box
 				// {threadName} : name of the box
 				// {time}       : time
@@ -64,7 +70,8 @@ module.exports = {
 
 				leaveMessage = leaveMessage
 					.replace(/\{userName\}|\{userNameTag\}/g, userName)
-					.replace(/\{type\}/g, leftParticipantFbId == event.author ? getLang("leaveType1") : getLang("leaveType2"))
+					.replace(/\{authorName\}/g, authorName)
+					.replace(/\{type\}/g, leaveType)
 					.replace(/\{threadName\}|\{boxName\}/g, threadName)
 					.replace(/\{time\}/g, hours)
 					.replace(/\{session\}/g, hours <= 10 ?
@@ -99,3 +106,4 @@ module.exports = {
 			};
 	}
 };
+							 
