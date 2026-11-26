@@ -59,7 +59,7 @@
     "how_it_work": "si vous activez à la fois whiteListMode et whiteListModeThread, le système vérifiera si l'utilisateur est dans whiteListIds, puis vérifiera si le fil est dans whiteListThreadIds ; si l'une des conditions est vraie, l'utilisateur peut utiliser le bot"
   },
   "database": {
-    "type": "sqlite",
+    "type": "json",
     "uriMongodb": "",
     "autoSyncWhenStart": true,
     "autoRefreshThreadInfoFirstTime": false,
@@ -107,13 +107,13 @@
   },
   "autoRefreshFbstate": true,
   "autoReloginWhenChangeAccount": false,
-  "autoRestartWhenListenMqttError": false,
+  "autoRestartWhenListenMqttError": true,
   "restartListenMqtt": {
-    "enable": false,
+    "enable": true,
     "timeRestart": 3600000,
     "delayAfterStopListening": 2000,
     "logNoti": false,
-    "notes": "Désactivé : pas de redémarrage automatique de l'écoute MQTT."
+    "notes": "Activé : redémarrage automatique de l'écoute MQTT."
   },
   "notiWhenListenMqttError": {
     "notes": "C'est le message lorsque le bot écoute le serveur mqtt et que le serveur mqtt cesse de fonctionner en raison de problèmes de compte tels que : compte verrouillé, bloqué pour spam,... le bot enverra automatiquement des notifications vers les parties de vos paramètres. Vous devez changer enable sur true pour utiliser cette fonctionnalité. Voir le fichier bot/login/handlerWhenListenHasError.js pour les détails de fonctionnement",
@@ -219,8 +219,8 @@
     "selfListen": false,
     "selfListenEvent": true,
     "autoMarkDelivery": false,
-    "autoReconnect": false,
-    "notes": "autoReconnect désactivé (false) pour éviter la reconnexion/réanimation automatique."
+    "autoReconnect": true,
+    "notes": "autoReconnect activé (true) pour la reconnexion automatique."
   },
   "enableTypingIndicator": true,
   "typingDuration": 1000,
@@ -298,5 +298,5 @@
     ],
     "notes": "Intégration GitHub pour la synchronisation automatique des modifications. Réglez enable sur true et remplissez repoOwner, repoName et token. Le jeton doit avoir les permissions repo. Réglez autoSyncOnUpdate sur true pour synchroniser automatiquement après les mises à jour."
   }
-  }
-    
+}
+  
