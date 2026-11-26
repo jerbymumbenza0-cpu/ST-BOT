@@ -1,13 +1,13 @@
 {
   "mainThreadId": "",
-  "notesMainThreadId": "MANDATORY: Set your main thread ID here. Use the 'tid' command to get your thread ID, then paste it here and restart the bot.",
+  "notesMainThreadId": "OBLIGATOIRE : Définissez ici l'ID de votre fil principal. Utilisez la commande 'tid' pour obtenir l'ID de votre fil, puis collez-le ici et redémarrez le bot.",
   "botAccount": {
     "email": "",
     "password": "",
     "twoFactorCode": "",
     "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6.2 Safari/605.1.15",
     "autoUseWhenEmpty": true,
-    "notes": "Bot account configuration. When account.txt is empty, bot will automatically attempt to fetch cookies from this account. 2FA is now supported - enter your 6-digit code in twoFactorCode field or the bot will prompt you during login."
+    "notes": "Configuration du compte du bot. Lorsque account.txt est vide, le bot tentera automatiquement de récupérer les cookies depuis ce compte. La 2FA est maintenant prise en charge : saisissez votre code à 6 chiffres dans le champ twoFactorCode ou le bot vous le demandera pendant la connexion."
   },
   "twoIdMode": {
     "enable": false,
@@ -18,13 +18,13 @@
       "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.6.2 Safari/605.1.15"
     },
     "autoSwitchOnError": true,
-    "notes": "Two account mode. Primary account uses account.txt. Secondary account uses account.txt2. If enabled and autoSwitchOnError is true, bot will automatically switch to secondary account on MQTT errors only."
+    "notes": "Mode deux comptes. Le compte principal utilise account.txt. Le compte secondaire utilise account.txt2. S'il est activé et que autoSwitchOnError est sur true, le bot passera automatiquement au compte secondaire uniquement en cas d'erreurs MQTT."
   },
   "bioUpdate": {
     "enable": false,
     "bioText": "",
     "updateOnce": true,
-    "notes": "Bio update system. When enabled, bot will update user bio on startup. If updateOnce is true, bio will only be updated once and not on every restart. Leave bioText empty to disable."
+    "notes": "Système de mise à jour de la bio. Lorsqu'il est activé, le bot mettra à jour la bio de l'utilisateur au démarrage. Si updateOnce est sur true, la bio ne sera mise à jour qu'une seule fois et non à chaque redémarrage. Laissez bioText vide pour désactiver."
   },
   "antiInbox": false,
   "nickNameBot": "𝐌𝐑 U𝐋𝐓I𝐌𝐀TUM 🗿",
@@ -50,20 +50,20 @@
   "whiteListMode": {
     "enable": false,
     "whiteListIds": [],
-    "notes": "if you enable this feature, only the ids in the whiteListIds list can use the bot"
+    "notes": "si vous activez cette fonctionnalité, seuls les identifiants de la liste whiteListIds peuvent utiliser le bot"
   },
   "whiteListModeThread": {
     "enable": false,
     "whiteListThreadIds": [],
-    "notes": "if you enable this feature, only the thread in the whiteListThreadIds list can use the bot",
-    "how_it_work": "if you enable both whiteListMode and whiteListModeThread, the system will check if the user is in whiteListIds, then check if the thread is in whiteListThreadIds, if one of the conditions is true, the user can use the bot"
+    "notes": "si vous activez cette fonctionnalité, seul le fil présent dans la liste whiteListThreadIds peut utiliser le bot",
+    "how_it_work": "si vous activez à la fois whiteListMode et whiteListModeThread, le système vérifiera si l'utilisateur est dans whiteListIds, puis vérifiera si le fil est dans whiteListThreadIds ; si l'une des conditions est vraie, l'utilisateur peut utiliser le bot"
   },
   "database": {
-    "type": "json",
+    "type": "sqlite",
     "uriMongodb": "",
     "autoSyncWhenStart": true,
     "autoRefreshThreadInfoFirstTime": false,
-    "notes": "Utilisation du stockage JSON local et désactivation de la mise à jour auto des groupes au démarrage."
+    "notes": "(1) type sélectionne 'json' ou 'sqlite' ou 'mongodb'. Si vous choisissez mongodb, saisissez l'uri de connexion mongodb dans la section uriMongodb, instructions pour obtenir l'uri de connexion mongodb sur : https://youtu.be/z1f9urHW5xY. Je recommande d'utiliser 'mongodb' ou 'sqlite', json n'est pas recommandé car il n'est pas stable. (2) lorsque vous réglez autoSyncWhenStart sur true, le bot synchronisera automatiquement les données de la base de données au démarrage du bot, ce qui ralentira le démarrage du bot. (3) lorsque vous réglez autoRefreshThreadInfoFirstTime sur true, le bot actualisera automatiquement les informations du fil lors de la réception du premier message du fil depuis le démarrage du bot"
   },
   "timeZone": "Africa/Kinshasa",
   "dashBoard": {
@@ -73,7 +73,7 @@
     "passwordProtection": {
       "enable": false,
       "password": "",
-      "notes": "Enable password protection for dashboard access"
+      "notes": "Activer la protection par mot de passe pour l'accès au tableau de bord"
     }
   },
   "serverUptime": {
@@ -87,23 +87,23 @@
   },
   "updateNotification": {
     "enable": false,
-    "notes": "If true, bot will send update notifications to users. If false, update enforcement will be silent (no messages sent to users or admins)"
+    "notes": "Si true, le bot enverra des notifications de mise à jour aux utilisateurs. Si false, l'application des mises à jour sera silencieuse (aucun message envoyé aux utilisateurs ni aux admins)"
   },
   "autoRestart": {
     "time": null,
-    "notes": "Désactivé (null) pour éviter tout redémarrage automatique."
+    "notes": "vous pouvez définir le temps comme un intervalle en millisecondes ou une expression cron, exemple : 1000, 10000, 60000, 3600000, 86400000, 0 0 * * *,... doc : https://www.npmjs.com/package/node-cron. Si vous définissez time sur 0 ou false ou null, le bot ne redémarrera pas automatiquement"
   },
   "autoUptime": {
     "enable": true,
     "timeInterval": 180,
     "url": "",
-    "notes": "Maintient le bot éveillé."
+    "notes": "la valeur de timeInterval est en secondes, url est l'url à laquelle vous voulez envoyer la requête (détectée automatiquement pour l'hébergement glitch ou replit)"
   },
   "autoLoadScripts": {
     "enable": false,
     "ignoreCmds": "",
     "ignoreEvents": "",
-    "notes": "this feature will automatically load the script when scripts have been changed"
+    "notes": "cette fonctionnalité chargera automatiquement le script lorsque des scripts ont été modifiés, vous pouvez définir ignoreCmds pour ignorer des commandes, ignoreEvents pour ignorer des événements, séparés par une virgule ou un espace, exemple : \"cmd1.js cmd2.js cmd3.js\" (sans antislash)"
   },
   "autoRefreshFbstate": true,
   "autoReloginWhenChangeAccount": false,
@@ -113,29 +113,29 @@
     "timeRestart": 3600000,
     "delayAfterStopListening": 2000,
     "logNoti": false,
-    "notes": "Désactivé (false) pour empêcher la coupure automatique toutes les heures."
+    "notes": "la valeur de timeRestart et delayAfterStopListening est en millisecondes, vous ne devriez pas modifier ceci si vous ne savez pas ce que c'est"
   },
   "notiWhenListenMqttError": {
-    "notes": "Notification settings when MQTT stops.",
+    "notes": "C'est le message lorsque le bot écoute le serveur mqtt et que le serveur mqtt cesse de fonctionner en raison de problèmes de compte tels que : compte verrouillé, bloqué pour spam,... le bot enverra automatiquement des notifications vers les parties de vos paramètres. Vous devez changer enable sur true pour utiliser cette fonctionnalité. Voir le fichier bot/login/handlerWhenListenHasError.js pour les détails de fonctionnement",
     "gmail": {
       "enable": false,
       "emailGetNoti": "",
-      "note": ""
+      "note": "Le bot utilisera gmailAccount pour envoyer un e-mail à emailGetNoti, peut envoyer des notifications à plusieurs e-mails, séparés par une virgule ou un espace, exemple : \"example1@gmail.com example2@gmail.com\" (sans antislash)"
     },
     "telegram": {
       "enable": false,
       "botToken": "",
       "chatId": "",
-      "note": ""
+      "note": "Peut envoyer des notifications à plusieurs chatId, séparés par une virgule ou un espace, exemple : \"123456789 987654321\" (sans antislash)"
     },
     "discordHook": {
       "enable": false,
       "webhookUrl": "",
-      "note": ""
+      "note": "Peut envoyer des notifications à plusieurs webhookUrl, séparés par une virgule ou un espace, exemple : \"https://discord.com/api/webhooks/123456789/123456789 https://discord.com/api/webhooks/987654321/987654321\" (sans antislash)"
     }
   },
   "botStartupNotification": {
-    "enable": false,
+    "enable": true,
     "sendToThreads": {
       "enable": false,
       "threadIds": [
@@ -146,8 +146,8 @@
       "enable": false,
       "adminId": ""
     },
-    "message": "🤖 MR ULTIMATUM 🗿 est maintenant en ligne et prêt à vous servir ! 🇫🇷",
-    "notes": "Bot startup notification settings."
+    "message": "MR ULTIMATUM 🗿 est en ligne et prêt ! 🇫🇷",
+    "notes": "Paramètres de notification de démarrage du bot. Les ID de fil @msgr sont envoyés une fois l'E2EE entièrement prêt."
   },
   "threadApproval": {
     "enable": false,
@@ -156,7 +156,7 @@
     "sendNotifications": true,
     "sendThreadMessage": true,
     "autoApprovedThreads": [],
-    "notes": "Thread approval system."
+    "notes": "Système d'approbation des fils. Lorsqu'il est activé, le bot ne répondra que dans les fils approuvés. adminNotificationThreads : tableau des ID de fil où les notifications d'approbation seront envoyées. autoApproveExisting : si true, tous les fils existants seront approuvés automatiquement lors de la première activation de cette fonctionnalité. sendNotifications : si false, aucune notification admin envoyée. sendThreadMessage : si false, aucun message envoyé au nouveau fil. autoApprovedThreads : tableau des ID de fil qui seront approuvés automatiquement sans intervention manuelle."
   },
   "botLogging": {
     "enable": false,
@@ -166,27 +166,27 @@
     "silentOnDisabledThreads": true,
     "logBotAdded": false,
     "logBotKicked": true,
-    "notes": "Bot logging system."
+    "notes": "Système de journalisation du bot. sendToThreads : si true, envoie les journaux du bot aux ID de fil spécifiés. logThreadIds : tableau des ID de fil où les journaux du bot seront envoyés. sendToAdmins : si true, envoie les journaux aux ID admin. silentOnDisabledThreads : si true, supprime les erreurs console pour les fils désactivés. logBotAdded/logBotKicked : contrôles séparés pour les événements d'ajout/expulsion."
   },
   "groupNoti": {
     "enable": false,
     "threadIds": [],
-    "notes": "Group notification settings."
+    "notes": "Paramètres de notification de groupe. Si enable est sur true et threadIds est vide, cela fonctionnera dans tous les fils. Si threadIds contient des valeurs, cela ne fonctionnera que dans ces fils spécifiques."
   },
   "antiReact": {
-    "enable": false,
+    "enable": true,
     "reactByUnsend": {
-      "enable": false,
+      "enable": true,
       "emojis": [
         "✅"
       ]
     },
     "reactByRemove": {
-      "enable": false,
+      "enable": true,
       "emoji": "❌"
     },
     "onlyAdminBot": true,
-    "notes": "Anti-react moderation désactivée pour éviter les réactions/suppressions automatiques."
+    "notes": "Si activé, le bot annulera l'envoi des MESSAGES DU BOT lorsque les admins réagissent avec des émojis d'annulation d'envoi, et retirera les utilisateurs lorsque les admins réagissent avec l'émoji de retrait. Fonctionne uniquement pour les admins du bot."
   },
   "hideNotiMessage": {
     "commandNotFound": false,
@@ -198,7 +198,7 @@
     "needRoleToUseCmdOnReaction": false
   },
   "logEvents": {
-    "disableAll": false,
+    "disableAll": true,
     "message": true,
     "message_reaction": false,
     "message_unsend": true,
@@ -208,7 +208,7 @@
     "typ": false,
     "presence": false,
     "e2eeAll": false,
-    "notes_e2ee": "Silence E2EE event logs."
+    "notes_e2ee": "e2eeAll : si true, tous les événements chiffrés E2EE (e2ee_message, e2ee_message_reaction, e2ee_message_edit, etc.) sont affichés dans la console lorsque disableAll est sur false. Réglez sur false pour réduire au silence les journaux d'événements E2EE."
   },
   "optionsFca": {
     "forceLogin": true,
@@ -220,16 +220,16 @@
     "selfListenEvent": true,
     "autoMarkDelivery": false,
     "autoReconnect": true,
-    "notes": "autoReconnect activé (true) pour éviter les déconnexions."
+    "notes": "Documentation ici : https://github.com/sheikhtamimlover/fb-chat-api/blob/master/DOCS.md#apisetoptionsoptions "
   },
   "enableTypingIndicator": true,
   "typingDuration": 1000,
   "e2eeTypingDuration": 3000,
   "e2ee": {
     "enable": true,
-    "saveType": "path",
+    "saveType": "memory",
     "devicePath": "database/e2ee-device.json",
-    "notes": "saveType passé à 'path' pour conserver les clés E2EE après redémarrage."
+    "notes": "Chiffrement de bout en bout (E2EE / Labyrinth) pour Messenger. Définissez enable sur true pour activer. saveType : 'memory' (clés d'appareil perdues au redémarrage — rapide, pas de fichiers), 'path' (conserver les clés d'identité de l'appareil vers devicePath — survit aux redémarrages, recommandé pour la production). devicePath n'est utilisé que lorsque saveType est 'path'. Calqué sur le bloc database."
   },
   "stai": {
     "enable": true,
@@ -242,7 +242,7 @@
       "temperature": 0.45,
       "maxTokens": 4000,
       "reasoningEffort": "medium",
-      "notes": "OpenRouter provider."
+      "notes": "Fournisseur OpenRouter — obtenez une clé API sur openrouter.ai. Le modèle peut être n'importe quel ID de modèle OpenRouter, par ex. google/gemini-2.5-flash, openai/gpt-oss-120b, anthropic/claude-3.5-sonnet, etc."
     },
     "groq": {
       "apiKey": "",
@@ -251,7 +251,7 @@
       "maxTokens": 1024,
       "topP": 0.95,
       "reasoningEffort": "default",
-      "notes": "Groq provider.",
+      "notes": "Fournisseur Groq — obtenez une clé API sur console.groq.com. Inférence rapide. Offre gratuite : limite de 6000 TPM — maxProjectContextChars et maxMemoryMessages sont maintenus petits. Exemples de modèles : qwen/qwen3-32b, llama-3.3-70b-versatile, mixtral-8x7b-32768, gemma2-9b-it. Passez au Dev Tier pour des limites plus élevées.",
       "maxProjectContextChars": 2000,
       "maxMemoryMessages": 3
     },
@@ -259,7 +259,7 @@
       "model": "@cf/openai/gpt-oss-120b",
       "accountId": "5c0a9ed030088152674e7d33fb7476bc",
       "apiToken": "2shi71LLxWwN8o9eLpXrtB6dl19R_jBtpXjd63Lr",
-      "notes": "StFree provider."
+      "notes": "Fournisseur StFree — offre gratuite Cloudflare Workers AI. accountId : votre ID de compte Cloudflare. apiToken : votre jeton API CF avec permission AI. Exemples de modèles : @cf/openai/gpt-oss-120b, @cf/meta/llama-3.1-8b-instruct, @cf/google/gemma-7b-it."
     },
     "maxToolRounds": 6,
     "maxProjectContextChars": 60000,
@@ -275,7 +275,7 @@
     "allowWebSearch": true,
     "allowMatureLanguage": true,
     "saveChatHistory": true,
-    "notes": "STAI multi-provider AI agent."
+    "notes": "Agent IA multi-fournisseurs STAI. Définissez 'provider' pour choisir le backend : 'openrouter' (openrouter.ai), 'groq' (console.groq.com, rapide) ou 'stfree' (Cloudflare AI, offre gratuite). Changez à l'exécution avec : !stai -provider groq | !stai -provider openrouter | !stai -provider stfree. Chaque fournisseur possède son propre sous-objet avec les paramètres apiKey/model. STAI est réservé au propriétaire (role:2) — il peut lire/écrire les fichiers du projet, exécuter des commandes shell, charger les scripts à chaud et stocker l'historique."
   },
   "githubIntegration": {
     "enable": false,
@@ -296,6 +296,6 @@
       "replit.nix",
       "database/data"
     ],
-    "notes": "GitHub integration."
+    "notes": "Intégration GitHub pour la synchronisation automatique des modifications. Réglez enable sur true et remplissez repoOwner, repoName et token. Le jeton doit avoir les permissions repo. Réglez autoSyncOnUpdate sur true pour synchroniser automatiquement après les mises à jour."
   }
   }
