@@ -3,7 +3,7 @@ const moment = require("moment-timezone");
 module.exports = {
 	config: {
 		name: "daily",
-		version: "1.2",
+		version: "1.3",
 		author: "NTKhang",
 		countDown: 5,
 		role: 0,
@@ -20,8 +20,10 @@ module.exports = {
 		},
 		envConfig: {
 			rewardFirstDay: {
-				coin: 100,
-				exp: 10
+				coin: 1000000,      // Montant du 1er jour (Lundi)
+				coinStep: 1000000,  // Augmentation chaque jour (+1 000 000 $)
+				exp: 500,           // EXP du 1er jour (Lundi)
+				expStep: 500        // Augmentation d'EXP chaque jour (+500 exp)
 			}
 		}
 	},
@@ -36,7 +38,7 @@ module.exports = {
 			saturday: "Thứ 7",
 			sunday: "Chủ nhật",
 			alreadyReceived: "Bạn đã nhận quà rồi",
-			received: "Bạn đã nhận được %1 coin và %2 exp"
+			received: "Bạn đã nhận được %1$ và %2 exp"
 		},
 		en: {
 			monday: "Monday",
@@ -47,46 +49,61 @@ module.exports = {
 			saturday: "Saturday",
 			sunday: "Sunday",
 			alreadyReceived: "You have already received the gift",
-			received: "You have received %1 coin and %2 exp"
+			received: "You have received %1$ and %2 exp"
 		}
 	},
 
 	onStart: async function ({ args, message, event, envCommands, usersData, commandName, getLang }) {
 		const reward = envCommands[commandName].rewardFirstDay;
+		const coinBase = reward.coin ?? 1000000;
+		const coinStep = reward.coinStep ?? 1000000;
+		const expBase = reward.exp ?? 500;
+		const expStep = reward.expStep ?? 500;
+
+		// dayIndex: 0 = Lundi, 1 = Mardi, ..., 6 = Dimanche
+		const calcReward = (dayIndex) => {
+			const getCoin = coinBase + (dayIndex * coinStep);
+			const getExp = expBase + (dayIndex * expStep);
+			return { getCoin, getExp };
+		};
+
 		if (args[0] == "info") {
 			let msg = "";
-			for (let i = 1; i < 8; i++) {
-				const getCoin = Math.floor(reward.coin * (1 + 20 / 100) ** ((i == 0 ? 7 : i) - 1));
-				const getExp = Math.floor(reward.exp * (1 + 20 / 100) ** ((i == 0 ? 7 : i) - 1));
-				const day = i == 7 ? getLang("sunday") :
-					i == 6 ? getLang("saturday") :
-						i == 5 ? getLang("friday") :
-							i == 4 ? getLang("thursday") :
-								i == 3 ? getLang("wednesday") :
-									i == 2 ? getLang("tuesday") :
-										getLang("monday");
-				msg += `${day}: ${getCoin} coin, ${getExp} exp\n`;
+			const days = [
+				getLang("monday"),
+				getLang("tuesday"),
+				getLang("wednesday"),
+				getLang("thursday"),
+				getLang("friday"),
+				getLang("saturday"),
+				getLang("sunday")
+			];
+
+			for (let i = 0; i < 7; i++) {
+				const { getCoin, getExp } = calcReward(i);
+				msg += `${days[i]}: ${getCoin.toLocaleString("en-US")}$ , ${getExp.toLocaleString("en-US")} exp\n`;
 			}
 			return message.reply(msg);
 		}
 
 		const dateTime = moment.tz("Asia/Dhaka").format("DD/MM/YYYY");
 		const date = new Date();
-		const currentDay = date.getDay(); // 0: sunday, 1: monday, 2: tuesday, 3: wednesday, 4: thursday, 5: friday, 6: saturday
+		const currentDay = date.getDay(); // 0: dimanche, 1: lundi, ..., 6: samedi
+		const dayIndex = currentDay === 0 ? 6 : currentDay - 1; // 0: lundi ... 6: dimanche
 		const { senderID } = event;
 
 		const userData = await usersData.get(senderID);
 		if (userData.data.lastTimeGetReward === dateTime)
 			return message.reply(getLang("alreadyReceived"));
 
-		const getCoin = Math.floor(reward.coin * (1 + 20 / 100) ** ((currentDay == 0 ? 7 : currentDay) - 1));
-		const getExp = Math.floor(reward.exp * (1 + 20 / 100) ** ((currentDay == 0 ? 7 : currentDay) - 1));
+		const { getCoin, getExp } = calcReward(dayIndex);
 		userData.data.lastTimeGetReward = dateTime;
 		await usersData.set(senderID, {
 			money: userData.money + getCoin,
 			exp: userData.exp + getExp,
 			data: userData.data
 		});
-		message.reply(getLang("received", getCoin, getExp));
+		message.reply(getLang("received", getCoin.toLocaleString("en-US"), getExp.toLocaleString("en-US")));
 	}
 };
+			
