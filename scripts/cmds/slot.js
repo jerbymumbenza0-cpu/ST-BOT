@@ -2,13 +2,12 @@ const { createCanvas } = require('canvas');
 const GIFEncoder = require('gif-encoder-2');
 const fs = require('fs-extra');
 const path = require('path');
-const axios = require('axios');
 
 module.exports = {
   config: {
     name: "slot",
     aliases: [],
-    version: "2.4.78",
+    version: "2.5.0",
     author: "ST | Sheikh Tamim",
     countDown: 10,
     role: 0,
@@ -16,28 +15,55 @@ module.exports = {
     usePrefix: true,
     description: "Play hexagonal slot machine with beautiful animations!",
     category: "game",
-    guide: "{pn} <bet amount> - Spin the hexagonal slots!"
+    guide: "{pn} [bet amount] - Spin the hexagonal slots! (Default bet: 10,000$)",
+    envConfig: {
+      defaultBet: 10000,      // Mise par défaut si aucun montant n'est précisé
+      minBet: 100,            // Mise minimum
+      maxBet: 100000000,      // Limite maximale de mise (100 000 000 $)
+      pairMultiplier: 3,      // Multiplicateur pour 2 symboles identiques (au lieu de 2)
+      baseBonus: 5000,        // Prime de base ajoutée à chaque gain
+      jackpotBonus: 250000    // Prime supplémentaire en cas de gros gain / jackpot
+    }
   },
 
   langs: {
     en: {
-      noBet: "❌ Please provide a bet amount!\nUsage: {pn} <amount>",
-      invalidBet: "❌ Invalid bet amount! Please enter a valid number.",
-      notEnoughMoney: "❌ You don't have enough money!\n💰 Your balance: ${balance}\n💸 Bet amount: ${bet}",
+      invalidBet: "❌ Invalid bet amount! Enter a number between ${min} and ${max}.",
+      betTooLow: "❌ Minimum bet is $${min}!",
+      betTooHigh: "❌ Maximum bet limit is $${max}!",
+      notEnoughMoney: "❌ You don't have enough money!\n💰 Your balance: $${balance}\n💸 Bet amount: $${bet}",
       processing: "🎰 Spinning hexagonal slots... Please wait!"
     }
   },
 
-  ST: async function({ message, args, event, usersData, getLang, commandName, api }) {
+  ST: async function({ message, args, event, usersData, getLang, envCommands, commandName, api }) {
     const { senderID, threadID } = event;
+    const cfg = envCommands?.[commandName] || this.config.envConfig;
 
-    if (!args[0]) {
-      return message.reply(getLang("noBet").replace("{pn}", commandName));
+    const defaultBet = cfg.defaultBet ?? 10000;
+    const minBet = cfg.minBet ?? 100;
+    const maxBet = cfg.maxBet ?? 100000000;
+    const pairMultiplier = cfg.pairMultiplier ?? 3;
+    const baseBonus = cfg.baseBonus ?? 5000;
+    const jackpotBonus = cfg.jackpotBonus ?? 250000;
+
+    // Utilise la mise par défaut si aucun argument n'est donné
+    let betAmount = defaultBet;
+    if (args[0]) {
+      betAmount = parseInt(args[0].replace(/[,_$]/g, ''), 10);
+      if (isNaN(betAmount)) {
+        return message.reply(getLang("invalidBet")
+          .replace("${min}", minBet.toLocaleString("en-US"))
+          .replace("${max}", maxBet.toLocaleString("en-US")));
+      }
     }
 
-    const betAmount = parseInt(args[0]);
-    if (isNaN(betAmount) || betAmount <= 0) {
-      return message.reply(getLang("invalidBet"));
+    if (betAmount < minBet) {
+      return message.reply(getLang("betTooLow").replace("${min}", minBet.toLocaleString("en-US")));
+    }
+
+    if (betAmount > maxBet) {
+      return message.reply(getLang("betTooHigh").replace("${max}", maxBet.toLocaleString("en-US")));
     }
 
     const userData = await usersData.get(senderID);
@@ -46,40 +72,47 @@ module.exports = {
 
     if (userMoney < betAmount) {
       return message.reply(getLang("notEnoughMoney")
-        .replace("{balance}", userMoney)
-        .replace("{bet}", betAmount));
+        .replace("${balance}", userMoney.toLocaleString("en-US"))
+        .replace("${bet}", betAmount.toLocaleString("en-US")));
     }
 
     await message.reply(getLang("processing"));
 
+    // Récompenses (payout) augmentées
     const symbols = {
-      'SEVEN': { emoji: '7️⃣', color: '#FF0000', payout: 200 },
-      'DIAMOND': { emoji: '💎', color: '#00D4FF', payout: 100 },
-      'BELL': { emoji: '🔔', color: '#FFD700', payout: 50 },
-      'STAR': { emoji: '⭐', color: '#FFA500', payout: 30 },
-      'MELON': { emoji: '🍉', color: '#2ECC71', payout: 20 },
-      'ORANGE': { emoji: '🍊', color: '#FF8C42', payout: 15 },
-      'GRAPE': { emoji: '🍇', color: '#9B59B6', payout: 10 },
-      'LEMON': { emoji: '🍋', color: '#FFD93D', payout: 8 },
-      'CHERRY': { emoji: '🍒', color: '#FF6B6B', payout: 5 }
+      'SEVEN':   { emoji: '7️⃣', color: '#FF0000', payout: 500 },
+      'DIAMOND': { emoji: '💎', color: '#00D4FF', payout: 250 },
+      'BELL':    { emoji: '🔔', color: '#FFD700', payout: 120 },
+      'STAR':    { emoji: '⭐', color: '#FFA500', payout: 75 },
+      'MELON':   { emoji: '🍉', color: '#2ECC71', payout: 50 },
+      'ORANGE':  { emoji: '🍊', color: '#FF8C42', payout: 35 },
+      'GRAPE':   { emoji: '🍇', color: '#9B59B6', payout: 25 },
+      'LEMON':   { emoji: '🍋', color: '#FFD93D', payout: 18 },
+      'CHERRY':  { emoji: '🍒', color: '#FF6B6B', payout: 12 }
     };
 
     const symbolKeys = Object.keys(symbols);
-    
+
     const result = [];
     for (let i = 0; i < 3; i++) {
       result.push(symbolKeys[Math.floor(Math.random() * symbolKeys.length)]);
     }
 
     let winMultiplier = 0;
+    let bonusAmount = 0;
     let winMessage = '';
 
     if (result[0] === result[1] && result[1] === result[2]) {
       winMultiplier = symbols[result[0]].payout;
       winMessage = `${symbols[result[0]].emoji}${symbols[result[1]].emoji}${symbols[result[2]].emoji}`;
+      bonusAmount = baseBonus + (winMultiplier >= 100 ? jackpotBonus : Math.floor(baseBonus * 2));
     } else if (result[0] === result[1] || result[1] === result[2] || result[0] === result[2]) {
-      winMultiplier = 2;
+      winMultiplier = pairMultiplier;
+      bonusAmount = baseBonus;
     }
+
+    const winAmount = winMultiplier > 0 ? (betAmount * winMultiplier) + bonusAmount : 0;
+    const newBalance = userMoney - betAmount + winAmount;
 
     const tempDir = path.join(__dirname, 'temp');
     await fs.ensureDir(tempDir);
@@ -95,7 +128,7 @@ module.exports = {
         ctx.shadowColor = glowColor;
         ctx.shadowBlur = 30;
       }
-      
+
       ctx.beginPath();
       for (let i = 0; i < 6; i++) {
         const angle = (Math.PI / 3) * i - Math.PI / 6;
@@ -105,18 +138,18 @@ module.exports = {
         else ctx.lineTo(hx, hy);
       }
       ctx.closePath();
-      
+
       if (fillGradient) {
         ctx.fillStyle = fillGradient;
         ctx.fill();
       }
-      
+
       if (strokeColor) {
         ctx.strokeStyle = strokeColor;
         ctx.lineWidth = lineWidth;
         ctx.stroke();
       }
-      
+
       ctx.shadowBlur = 0;
     }
 
@@ -135,12 +168,6 @@ module.exports = {
       const totalFrames = 50;
       const spinFrames = 38;
 
-      let winAmount = 0;
-      if (winMultiplier > 0) {
-        winAmount = betAmount * winMultiplier;
-      }
-      const newBalance = userMoney - betAmount + winAmount;
-
       const slotPositions = [
         { x: width / 2 - 220, y: 450 },
         { x: width / 2, y: 450 },
@@ -148,8 +175,6 @@ module.exports = {
       ];
 
       for (let frame = 0; frame < totalFrames; frame++) {
-        const animProgress = frame / totalFrames;
-        
         const bgTime = frame * 0.02;
         const bgGradient = ctx.createLinearGradient(0, 0, width, height);
         bgGradient.addColorStop(0, `hsl(${(bgTime * 50) % 360}, 40%, 10%)`);
@@ -163,7 +188,7 @@ module.exports = {
           const starY = (i * 73) % height;
           const starSize = 2 + (i % 3);
           const starOpacity = 0.3 + Math.sin(frame * 0.1 + i) * 0.2;
-          
+
           ctx.fillStyle = `rgba(255, 255, 255, ${starOpacity})`;
           ctx.beginPath();
           ctx.arc(starX, starY, starSize, 0, Math.PI * 2);
@@ -200,7 +225,7 @@ module.exports = {
 
         ctx.fillStyle = '#FFFFFF';
         ctx.font = 'bold 32px Arial';
-        ctx.fillText(`Bet: $${betAmount}`, width / 2, 240);
+        ctx.fillText(`Bet: $${betAmount.toLocaleString("en-US")}`, width / 2, 240);
 
         for (let i = 0; i < 3; i++) {
           const pos = slotPositions[i];
@@ -239,7 +264,7 @@ module.exports = {
           hexGradient.addColorStop(1, symbols[displaySymbol].color + '22');
 
           const isLocked = frame >= stopFrame;
-          drawHexagon(0, 0, hexSize, hexGradient, 
+          drawHexagon(0, 0, hexSize, hexGradient,
             isLocked ? '#FFD700' : '#4a5568',
             isLocked ? 8 : 5,
             isLocked,
@@ -264,18 +289,18 @@ module.exports = {
         }
 
         if (frame >= spinFrames + 5) {
-          const resultY = 720;
+          const resultY = 700;
 
           if (winMultiplier > 0) {
             if (winMultiplier >= 100) {
               const megaPulse = 1 + Math.sin((frame - spinFrames) * 0.4) * 0.15;
-              
+
               for (let i = 0; i < 10; i++) {
                 const angle = (i / 10) * Math.PI * 2 + frame * 0.2;
                 const radius = 200 + Math.sin(frame * 0.3 + i) * 30;
                 const starX = width / 2 + Math.cos(angle) * radius;
                 const starY = resultY + Math.sin(angle) * radius;
-                
+
                 ctx.fillStyle = `rgba(255, 215, 0, ${0.6 + Math.sin(frame * 0.5 + i) * 0.4})`;
                 ctx.font = 'bold 40px Arial';
                 ctx.textAlign = 'center';
@@ -285,7 +310,7 @@ module.exports = {
               ctx.save();
               ctx.translate(width / 2, resultY - 50);
               ctx.scale(megaPulse, megaPulse);
-              
+
               const jackpotGradient = ctx.createLinearGradient(-200, 0, 200, 0);
               jackpotGradient.addColorStop(0, '#FFD700');
               jackpotGradient.addColorStop(0.5, '#FFA500');
@@ -300,13 +325,17 @@ module.exports = {
               ctx.restore();
 
               ctx.fillStyle = '#FFFFFF';
-              ctx.font = 'bold 56px Arial';
+              ctx.font = 'bold 52px Arial';
               ctx.textAlign = 'center';
-              ctx.fillText(winMessage, width / 2, resultY + 30);
+              ctx.fillText(winMessage, width / 2, resultY + 25);
 
               ctx.fillStyle = '#FFD700';
-              ctx.font = 'bold 64px Arial';
-              ctx.fillText(`WIN: $${winAmount}`, width / 2, resultY + 100);
+              ctx.font = 'bold 58px Arial';
+              ctx.fillText(`WIN: $${winAmount.toLocaleString("en-US")}`, width / 2, resultY + 95);
+
+              ctx.fillStyle = '#00FFAA';
+              ctx.font = 'bold 34px Arial';
+              ctx.fillText(`🎁 Bonus: +$${bonusAmount.toLocaleString("en-US")}`, width / 2, resultY + 145);
             } else {
               ctx.fillStyle = '#2ECC71';
               ctx.font = 'bold 52px Arial';
@@ -319,17 +348,21 @@ module.exports = {
               if (winMessage) {
                 ctx.fillStyle = '#FFFFFF';
                 ctx.font = 'bold 50px Arial';
-                ctx.fillText(winMessage, width / 2, resultY + 60);
+                ctx.fillText(winMessage, width / 2, resultY + 55);
               }
 
               ctx.fillStyle = '#FFD700';
-              ctx.font = 'bold 56px Arial';
-              ctx.fillText(`WIN: $${winAmount}`, width / 2, resultY + 130);
+              ctx.font = 'bold 54px Arial';
+              ctx.fillText(`WIN: $${winAmount.toLocaleString("en-US")}`, width / 2, resultY + 120);
+
+              ctx.fillStyle = '#00FFAA';
+              ctx.font = 'bold 32px Arial';
+              ctx.fillText(`🎁 Bonus: +$${bonusAmount.toLocaleString("en-US")}`, width / 2, resultY + 168);
             }
 
             ctx.fillStyle = '#4ecca3';
-            ctx.font = 'bold 46px Arial';
-            ctx.fillText(`Balance: $${newBalance}`, width / 2, resultY + 200);
+            ctx.font = 'bold 42px Arial';
+            ctx.fillText(`Balance: $${newBalance.toLocaleString("en-US")}`, width / 2, resultY + 225);
           } else {
             ctx.fillStyle = '#E74C3C';
             ctx.font = 'bold 56px Arial';
@@ -341,7 +374,7 @@ module.exports = {
 
             ctx.fillStyle = '#95a5a6';
             ctx.font = 'bold 44px Arial';
-            ctx.fillText(`Balance: $${newBalance}`, width / 2, resultY + 80);
+            ctx.fillText(`Balance: $${newBalance.toLocaleString("en-US")}`, width / 2, resultY + 80);
           }
 
           ctx.fillStyle = '#ecf0f1';
@@ -355,16 +388,6 @@ module.exports = {
       encoder.finish();
     });
 
-    let winAmount = 0;
-    let newBalance = userMoney;
-
-    if (winMultiplier > 0) {
-      winAmount = betAmount * winMultiplier;
-      newBalance = userMoney - betAmount + winAmount;
-    } else {
-      newBalance = userMoney - betAmount;
-    }
-
     await usersData.set(senderID, {
       money: newBalance,
       data: userData.data
@@ -375,3 +398,4 @@ module.exports = {
     }, threadID, () => fs.unlinkSync(gifPath));
   }
 };
+    
