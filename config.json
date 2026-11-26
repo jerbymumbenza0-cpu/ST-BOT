@@ -26,7 +26,7 @@
     "updateOnce": true,
     "notes": "Bio update system. When enabled, bot will update user bio on startup. If updateOnce is true, bio will only be updated once and not on every restart. Leave bioText empty to disable."
   },
-  "antiInbox": true,
+  "antiInbox": false,
   "nickNameBot": "𝐌𝐑 U𝐋𝐓I𝐌𝐀TUM 🗿",
   "prefix": "!",
   "usePrefix": {
@@ -59,11 +59,11 @@
     "how_it_work": "if you enable both whiteListMode and whiteListModeThread, the system will check if the user is in whiteListIds, then check if the thread is in whiteListThreadIds, if one of the conditions is true, the user can use the bot"
   },
   "database": {
-    "type": "mongodb",
-    "uriMongodb": "mongodb+srv://Jerbymumbenza0_db_user:nGxcnDvnqLTV4U07@st-bot.nxcqxme.mongodb.net/stbot?retryWrites=true&w=majority",
+    "type": "json",
+    "uriMongodb": "",
     "autoSyncWhenStart": true,
     "autoRefreshThreadInfoFirstTime": true,
-    "notes": "Connecté à MongoDB Atlas pour conserver les soldes et données même après redémarrage."
+    "notes": "Utilisation du stockage JSON local sans MongoDB."
   },
   "timeZone": "Africa/Kinshasa",
   "dashBoard": {
@@ -174,19 +174,19 @@
     "notes": "Group notification settings."
   },
   "antiReact": {
-    "enable": true,
+    "enable": false,
     "reactByUnsend": {
-      "enable": true,
+      "enable": false,
       "emojis": [
         "✅"
       ]
     },
     "reactByRemove": {
-      "enable": true,
+      "enable": false,
       "emoji": "❌"
     },
     "onlyAdminBot": true,
-    "notes": "Anti-react moderation."
+    "notes": "Anti-react moderation désactivée pour éviter les réactions/suppressions automatiques."
   },
   "hideNotiMessage": {
     "commandNotFound": false,
@@ -198,7 +198,7 @@
     "needRoleToUseCmdOnReaction": false
   },
   "logEvents": {
-    "disableAll": true,
+    "disableAll": false,
     "message": true,
     "message_reaction": false,
     "message_unsend": true,
@@ -298,5 +298,5 @@
     ],
     "notes": "GitHub integration."
   }
-  }
-      
+}
+  
