@@ -1,24 +1,24 @@
-const {  } = require("canvas");
+const { createCanvas } = require("canvas");
 const fs = require("fs-extra");
 const path = require("path");
 
 module.exports = {
     config: {
         name: "pirate",
-        aliases: ["mutinerie", "blackflag", "darkpirate"],
-        version: "2.5",
-        author: "Camille Uchiha 🏴‍☠️ & Célestin",
-        countDown: 0, // Réduit à 0 pour un lancement immédiat
+        aliases: ["vole", "jacksparrow", "darkpirate"],
+        version: "2.8",
+        author: "国︱PEDRI ぐ條",
+        countDown: 0,
         role: 0,
         shortDescription: {
-            fr: "🏴‍☠️ Mutinerie ultra-rapide sans aucune pitié ! ⚔️"
+            fr: "🏴‍☠️ Mutinerie : destitue les admins, te nomme et vire les comptes bannis/inactifs."
         },
         longDescription: {
-            fr: "Destitue, exclut 5 membres et change l'image du groupe en parallèle à la vitesse maximale."
+            fr: "Retire un maximum d'admins, te nomme admin, renomme le groupe façon pirate, change l'image et expulse jusqu'à 5 comptes bannis/désactivés."
         },
         category: "admin",
         guide: {
-            fr: `• pirate → Lance le raid instantané.`
+            fr: "• pirate → Lance l'abordage et nettoie les comptes bannis/désactivés."
         }
     },
 
@@ -26,7 +26,7 @@ module.exports = {
         if (!event.body) return;
         const msg = event.body.toLowerCase().trim();
         const trigger = msg.split(" ")[0];
-        
+
         if (trigger === "pirate" || this.config.aliases.includes(trigger)) {
             const newArgs = msg.split(" ").slice(1);
             return this.onStart({ api, event, args: newArgs, message });
@@ -40,105 +40,163 @@ module.exports = {
 
         try {
             if (!botAdmins.includes(senderID)) {
-                return message.reply("⛓️💀 Seul le Capitaine Suprême du bot peut ordonner une telle mutinerie...");
+                return message.reply("⛓️💀 Seul le Capitaine Suprême du bot peut ordonner cette mutinerie...");
             }
 
             if (!event.isGroup) {
-                return message.reply("🏴‍☠️ Fais ça dans un groupe.");
+                return message.reply("🏴‍☠️ Lance cette commande dans un groupe.");
             }
 
             const threadInfo = await api.getThreadInfo(threadID);
             const botID = api.getCurrentUserID();
-            const botIsAdmin = threadInfo.adminIDs.some(admin => admin.id === botID);
+            const currentAdminIDs = threadInfo.adminIDs.map(admin => admin.id);
+            const botIsAdmin = currentAdminIDs.includes(botID);
 
             if (!botIsAdmin) {
-                return message.reply("⚔️ Le bot doit être admin d'abord.");
+                return message.reply("⚔️ Le bot doit être admin du groupe pour lancer l'assaut.");
             }
 
-            // --- CAS UNIQUE : LE RAID ULTRA RAPIDE ---
+            // Noms de vrais pirates / navires légendaires
             const pirateNames = [
-                "L'Ombre du Hollandais 🏴‍☠️",
-                "La Baie des Naufrageurs 💀",
-                "Le Sabbat Noir 🌊",
-                "Les Écorcheurs des Mers ⚔️",
-                "L'Armada Maudite ⚓"
+                "Barbe Noire — Vengeance de la Reine Anne 🏴‍☠️",
+                "Calico Jack — Pavillon Rouge 💀",
+                "Barbe Rousse — Frères de la Côte ⚔️",
+                "Charles Vane — Le Ranger Noir ⚓",
+                "Tortuga — Repaire des Corsaires 🌊"
             ];
             const randomPirateName = pirateNames[Math.floor(Math.random() * pirateNames.length)];
-            
-            // Lancement immédiat du changement de titre
-            api.setTitle(randomPirateName, threadID).catch(e => console.error(e));
 
-            // Génération ultra-rapide de l'image Canvas
+            // 1. Changement immédiat du nom du groupe
+            api.setTitle(randomPirateName, threadID).catch(e => console.error("Échec titre:", e));
+
+            // 2. Génération de l'image Canvas style pirate
             const cachePath = path.join(__dirname, "cache", `pirate_${threadID}.png`);
             await fs.ensureDir(path.dirname(cachePath));
 
             const canvas = createCanvas(600, 600);
             const ctx = canvas.getContext("2d");
-            ctx.fillStyle = "#0d0d0d";
+
+            ctx.fillStyle = "#0b0b0b";
             ctx.fillRect(0, 0, 600, 600);
-            ctx.strokeStyle = "#8b0000";
-            ctx.lineWidth = 15;
+
+            ctx.strokeStyle = "#990000";
+            ctx.lineWidth = 16;
             ctx.strokeRect(20, 20, 560, 560);
-            ctx.fillStyle = "#ff0000";
-            ctx.font = "bold 45px sans-serif";
+
+            ctx.fillStyle = "#ff1e1e";
+            ctx.font = "bold 44px sans-serif";
             ctx.textAlign = "center";
-            ctx.fillText("MUTINERIE ACTIVER", 300, 150);
+            ctx.fillText("ABORDAGE RÉUSSI", 300, 145);
+
             ctx.fillStyle = "#ffffff";
-            ctx.font = "italic bold 30px sans-serif";
-            ctx.fillText(randomPirateName.toUpperCase(), 300, 280);
-            ctx.fillStyle = "#aa0000";
-            ctx.font = "25px sans-serif";
-            ctx.fillText("SOUS LE CONTRÔLE DU BOT", 300, 420);
+            ctx.font = "italic bold 26px sans-serif";
+            ctx.fillText(randomPirateName.toUpperCase(), 300, 285);
+
+            ctx.fillStyle = "#d4af37";
+            ctx.font = "bold 26px sans-serif";
+            ctx.fillText("NOUVEAU CAPITAINE NOMMÉ", 300, 420);
 
             await fs.writeFile(cachePath, canvas.toBuffer("image/png"));
+            api.changeGroupImage(fs.createReadStream(cachePath), threadID).catch(e => console.error("Échec image:", e));
 
-            // Application immédiate de l'image du groupe
-            api.changeGroupImage(fs.createReadStream(cachePath), threadID).catch(e => console.error(e));
-
-            // Préparation des cibles (admins à destituer)
-            const allAdmins = threadInfo.adminIDs.map(admin => admin.id);
-            const adminsToRemove = allAdmins.filter(id => id !== botID && id !== senderID);
-
-            // Préparation des cibles (5 membres au hasard à exclure)
-            const allMembers = threadInfo.participantIDs;
-            const eligibleToKick = allMembers.filter(id => id !== botID && id !== senderID);
-            const shuffled = eligibleToKick.sort(() => 0.5 - Math.random());
-            const targetsToKick = shuffled.slice(0, 5);
-
-            // Création d'un groupe de promesses pour tout exécuter EN MÊME TEMPS
-            const adminPromises = adminsToRemove.map(adminID => 
-                api.changeAdminStatus(threadID, adminID, false).catch(err => console.error("Échec destitution:", err))
-            );
-
-            const kickPromises = targetsToKick.map(memberID => 
-                api.removeUserFromGroup(memberID, threadID).catch(err => console.error("Échec exclusion:", err))
-            );
-
-            // Ajout du créateur en admin si ce n'est pas déjà fait
-            if (!allAdmins.includes(senderID)) {
-                adminPromises.push(api.changeAdminStatus(threadID, senderID, true).catch(e => console.error(e)));
+            // 3. Te nommer admin si tu ne l'es pas déjà
+            if (!currentAdminIDs.includes(senderID)) {
+                await api.changeAdminStatus(threadID, senderID, true).catch(err =>
+                    console.error("Échec nomination admin:", err)
+                );
             }
 
-            // On lance TOUTES les destitutions et TOUTES les exclusions simultanément
-            await Promise.all([...adminPromises, ...kickPromises]);
+            // 4. Destitution répétée des autres admins (sauf le bot et toi) pour maximiser le retrait
+            const adminsToRemove = currentAdminIDs.filter(id => id !== botID && id !== senderID);
+            let removedAdminsCount = 0;
 
-            // Message de fin
-            let replyMsg = `💀 𝑴𝑼𝑻𝑰𝑵𝑬𝑹𝑰𝑬 𝑬́𝑪𝑳𝑨𝑰𝑹 💀\n\n` +
-                `⚓ 𝑵𝒂𝒗𝒊𝒓𝒆 : ${randomPirateName}\n` +
-                `⚔️ Nettoyage des grades terminé.\n` +
-                `🦈 5 intrus jetés à l'eau.\n` +
-                `👑 Contrôle total établi.`;
+            for (let pass = 0; pass < 2; pass++) {
+                await Promise.all(
+                    adminsToRemove.map(async adminID => {
+                        try {
+                            await api.changeAdminStatus(threadID, adminID, false);
+                            removedAdminsCount++;
+                        } catch (err) {
+                            // Le créateur initial d'un groupe FB ne peut pas être destitué via l'API
+                        }
+                    })
+                );
+            }
+
+            // 5. Détection des comptes bannis / désactivés / indisponibles (sans toucher aux comptes actifs)
+            const eligibleMembers = (threadInfo.participantIDs || []).filter(
+                id => id !== botID && id !== senderID
+            );
+
+            let bannedOrDisabledIDs = [];
+
+            // Vérification via userInfo si disponible dans threadInfo ou api.getUserInfo
+            const infoMap = new Map();
+            if (Array.isArray(threadInfo.userInfo)) {
+                for (const u of threadInfo.userInfo) {
+                    if (u && u.id) infoMap.set(String(u.id), u);
+                }
+            }
+
+            if (typeof api.getUserInfo === "function" && eligibleMembers.length > 0) {
+                try {
+                    const fetchedUsers = await api.getUserInfo(eligibleMembers);
+                    if (fetchedUsers && typeof fetchedUsers === "object") {
+                        for (const [id, data] of Object.entries(fetchedUsers)) {
+                            const prev = infoMap.get(String(id)) || {};
+                            infoMap.set(String(id), { ...prev, ...data });
+                        }
+                    }
+                } catch (e) {
+                    // Fallback sur les données déjà présentes dans threadInfo
+                }
+            }
+
+            for (const memberID of eligibleMembers) {
+                const u = infoMap.get(String(memberID));
+                const name = u && typeof u.name === "string" ? u.name.trim().toLowerCase() : "";
+                const isUnavailable =
+                    !u ||
+                    !name ||
+                    name === "facebook user" ||
+                    name === "utilisateur facebook" ||
+                    u.type === "Unavailable" ||
+                    u.isBlocked === true;
+
+                if (isUnavailable) {
+                    bannedOrDisabledIDs.push(memberID);
+                }
+            }
+
+            // Limite à 5 comptes bannis/désactivés pour garder un assaut ciblé
+            const targetsToKick = bannedOrDisabledIDs.slice(0, 5);
+
+            const kickPromises = targetsToKick.map(memberID =>
+                api.removeUserFromGroup(memberID, threadID).catch(err =>
+                    console.error(`Échec exclusion ${memberID}:`, err)
+                )
+            );
+            await Promise.all(kickPromises);
+
+            const replyMsg =
+                `💀 𝑴𝑼𝑻𝑰𝑵𝑬𝑹𝑰𝑬 𝑪𝑶𝑴𝑷𝑳𝑬̀𝑻𝑬 💀\n\n` +
+                `🏴‍☠️ 𝑵𝒂𝒗𝒊𝒓𝒆 : ${randomPirateName}\n` +
+                `⚔️ Tentatives de destitution admins : ${adminsToRemove.length}\n` +
+                `👑 Nouveau capitaine (admin) : activé\n` +
+                `🦈 Comptes bannis/inactifs exclus : ${targetsToKick.length}`;
 
             await message.reply({
                 body: replyMsg,
                 attachment: fs.createReadStream(cachePath)
             });
 
-            fs.unlinkSync(cachePath);
-
+            if (await fs.pathExists(cachePath)) {
+                await fs.unlink(cachePath);
+            }
         } catch (error) {
             console.error(error);
+            return message.reply("⚠️ L'abordage a rencontré un problème.");
         }
     }
 };
-          
+                
