@@ -41,12 +41,12 @@
     "ignoreCommand": []
   },
   "creator": ["61593634815551"],
-"developer": ["61593634815551"],
-"adminBot": ["61593634815551"],
-"premium": ["61593634815551"],
-"vipuser": ["61593634815551"],
-"premiumUsers": ["61593634815551"],
-"devUsers": ["61593634815551"],
+  "developer": ["61593634815551"],
+  "adminBot": ["61593634815551"],
+  "premium": ["61593634815551"],
+  "vipuser": ["61593634815551"],
+  "premiumUsers": ["61593634815551"],
+  "devUsers": ["61593634815551"],
   "whiteListMode": {
     "enable": false,
     "whiteListIds": [],
@@ -235,7 +235,7 @@
     "enable": true,
     "provider": "openrouter",
     "openrouter": {
-      "apiKey": "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",
+      "apiKey": "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",
       "model": "google/gemini-2.5-flash",
       "siteUrl": "https://github.com/sheikhtamimlover/ST-BOT",
       "title": "STAI",
@@ -299,3 +299,4 @@
     "notes": "GitHub integration for auto-syncing changes. Set enable to true and fill in repoOwner, repoName, and token. Token should have repo permissions. Set autoSyncOnUpdate to true to auto-sync after updates."
   }
   }
+      
