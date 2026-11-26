@@ -1,0 +1,41 @@
+"use strict";
+
+const fs = require("fs");
+const path = require("path");
+
+const mongoUri =
+  "mongodb+srv://Jerbymumbenza0_db_user:nGxcnDvnqLTV4U07@st-bot.nxcqxme.mongodb.net/stbot?retryWrites=true&w=majority";
+
+const configPath = path.join(__dirname, "config.json");
+const rawConfig = JSON.parse(fs.readFileSync(configPath, "utf8"));
+
+rawConfig.database = {
+  ...rawConfig.database,
+  type: "mongodb",
+  uriMongodb: mongoUri,
+  autoSyncWhenStart: true,
+  autoRefreshThreadInfoFirstTime: true,
+};
+
+rawConfig.restartListenMqtt = {
+  ...rawConfig.restartListenMqtt,
+  enable: false,
+};
+
+rawConfig.autoRestart = {
+  ...rawConfig.autoRestart,
+  time: null,
+};
+
+rawConfig.optionsFca = {
+  ...rawConfig.optionsFca,
+  autoReconnect: true,
+};
+
+rawConfig.e2ee = {
+  ...rawConfig.e2ee,
+  saveType: "path",
+};
+
+fs.writeFileSync(configPath, JSON.stringify(rawConfig, null, 2), "utf8");
+console.log("config.json mis à jour avec MongoDB et anti-désactivation.");
