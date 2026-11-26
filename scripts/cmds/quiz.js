@@ -1,7 +1,7 @@
 const axios = require("axios");
 
 const QUESTION_TIMEOUT_MS = 30000;
-const QUESTIONS_PER_SESSION = 15;
+const QUESTIONS_PER_SESSION = 6;
 
 const CATEGORIES = {
   "1": { name: "🧠 Culture générale", code: "general" },
@@ -9,7 +9,7 @@ const CATEGORIES = {
   "3": { name: "📜 Histoire & Littérature", code: "history_lit" }
 };
 
-// 15 questions par catégorie en français (45 questions au total)
+// 15 questions par catégorie en français (45 questions au total, 6 tirées au hasard par partie)
 const CATEGORY_QUESTIONS_FR = {
   general: [
     { question: "Quelle est la capitale de la République démocratique du Congo ?", options: { A: "Lubumbashi", B: "Kinshasa", C: "Goma", D: "Matadi" }, correct: "B" },
@@ -294,14 +294,14 @@ module.exports = {
   config: {
     name: "quiz",
     aliases: [],
-    version: "3.7.0",
+    version: "3.8.0",
     author: "ST | Sheikh Tamim (FR by assistant)",
     countDown: 5,
     role: 0,
-    description: "Quiz interactif en français (3 catégories, 15 questions chacune, 30s/question, arrêt avec 'fin')",
+    description: "Quiz interactif en français (6 questions au hasard par partie, 30s/question, arrêt avec 'fin')",
     category: "game",
     guide: {
-      fr: "{pn} - Démarrer un quiz en français\nChoisissez une catégorie (15 questions aléatoires, 30s par question, écrivez 'fin' pour arrêter)"
+      fr: "{pn} - Démarrer un quiz en français\nChoisissez une catégorie (6 questions aléatoires par partie, 30s par question, écrivez 'fin' pour arrêter)"
     }
   },
 
@@ -313,7 +313,7 @@ module.exports = {
     const sent = await message.reply(
       `🎮 Quiz (Français) - Choix de la catégorie\n` +
       `━━━━━━━━━━━━━━━━━━━━━━\n` +
-      `Format : ${QUESTIONS_PER_SESSION} questions aléatoires • 30s/question\n` +
+      `Format : ${QUESTIONS_PER_SESSION} questions au hasard • 30s/question\n` +
       `🛑 Écrivez "fin" à tout moment pour arrêter\n\n` +
       `${categoryText}\n` +
       `━━━━━━━━━━━━━━━━━━━━━━\n` +
@@ -484,4 +484,4 @@ module.exports = {
     }
   }
 };
-     
+                                                                                   
