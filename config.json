@@ -235,7 +235,7 @@
     "enable": true,
     "provider": "openrouter",
     "openrouter": {
-      "apiKey": "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",
+      "apiKey": "Sk-or-v1-64d8009bc3e20f8a0f53914d3a99f09b43f832a9b09f8b2c7e21ba6a004cc193",
       "model": "google/gemini-2.5-flash",
       "siteUrl": "https://github.com/sheikhtamimlover/ST-BOT",
       "title": "STAI",
