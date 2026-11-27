@@ -207,12 +207,12 @@
     "reactByUnsend": {
       "enable": true,
       "emojis": [
-        "👍"
+        "✅"
       ]
     },
     "reactByRemove": {
       "enable": true,
-      "emoji": "⚠"
+      "emoji": "❌"
     },
     "onlyAdminBot": true,
     "notes": "Permet de supprimer les messages du bot ou de retirer des utilisateurs selon les réactions des administrateurs."
@@ -338,5 +338,4 @@
     ],
     "notes": "Intégration GitHub pour synchroniser automatiquement les modifications du projet. Configurez le propriétaire, le dépôt et le jeton GitHub."
   }
-}
-  
+  }
