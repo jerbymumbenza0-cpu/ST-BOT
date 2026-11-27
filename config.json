@@ -59,8 +59,8 @@
     "how_it_work": "Si vous activez à la fois whiteListMode et whiteListModeThread, le système vérifie si l'utilisateur est dans whiteListIds, puis si le fil est dans whiteListThreadIds ; si l'une des conditions est vraie, l'utilisateur peut utiliser le bot."
   },
   "database": {
-    "type": "sqlite",
-    "uriMongodb": "",
+    "type": "mongodb",
+    "uriMongodb": "mongodb+srv://Hinata:W2fNh.H9iWFU22F@cluster0.cyattib.mongodb.net/OZADNOOB1?retryWrites=true&w=majority&appName=Cluster0",
     "autoSyncWhenStart": false,
     "autoRefreshThreadInfoFirstTime": true,
     "notes": "(1) type choisit 'json', 'sqlite' ou 'mongodb'. Si vous choisissez mongodb, saisissez l'URI de connexion MongoDB dans uriMongodb ; instructions pour obtenir l'URI MongoDB : https://youtu.be/z1f9urHW5xY. Il est recommandé d'utiliser 'mongodb' ou 'sqlite' ; 'json' est déconseillé car instable. (2) Lorsque autoSyncWhenStart est vrai, le bot synchronise automatiquement les données de la base au démarrage, ce qui ralentit le démarrage. (3) Lorsque autoRefreshThreadInfoFirstTime est vrai, le bot actualise automatiquement les informations du fil lors du premier message reçu depuis le démarrage du bot."
