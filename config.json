@@ -143,8 +143,8 @@
       ]
     },
     "sendToAdmin": {
-      "enable": true,
-      "adminId": "6159363481555"
+      "enable": false,
+      "adminId": ""
     },
     "message": "𝐌𝐑 U𝐋𝐓I𝐌𝐀TUM 🗿 est en ligne et prêt ! 🇫🇷",
     "notes": "Paramètres de notification au démarrage du bot. Les ID de fils @msgr sont envoyés une fois l'E2EE entièrement prêt."
@@ -227,7 +227,7 @@
   "e2eeTypingDuration": 3000,
   "e2ee": {
     "enable": true,
-    "saveType": "memory",
+    "saveType": "path",
     "devicePath": "database/e2ee-device.json",
     "notes": "Chiffrement de bout en bout (E2EE / Labyrinth) pour Messenger. Passez enable sur true pour l'activer. saveType : 'memory' (clés de périphérique perdues au redémarrage — rapide, sans fichier), 'path' (persiste les clés d'identité du périphérique dans devicePath — survit aux redémarrages, recommandé en production). devicePath n'est utilisé que lorsque saveType est 'path'. Calqué sur le bloc database."
   },
