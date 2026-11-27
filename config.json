@@ -310,8 +310,8 @@
 
     "stfree": {
       "model": "@cf/openai/gpt-oss-120b",
-      "accountId": "5c0a9ed030088152674e7d33fb7476bc",
-      "apiToken": "REMPLACEZ_PAR_UN_NOUVEAU_JETON_CLOUDFLARE",
+      "accountId": "5c3adbceac2ce10d1951d0eadcd4d1e5",
+      "apiToken": "cfut_hEx1edBRFcibgdUUAWfaOwy1DdUskB5MUgaQxUyvdd1504d6",
       "notes": "Fournisseur StFree : offre gratuite Cloudflare Workers AI. accountId correspond à l'identifiant de votre compte Cloudflare. apiToken correspond à votre jeton API avec les autorisations AI."
     },
 
