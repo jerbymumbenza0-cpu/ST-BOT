@@ -283,7 +283,7 @@
 
   "stai": {
     "enable": true,
-    "provider": "openrouter",
+    "provider": "stfree",
 
     "openrouter": {
       "apiKey": "",
