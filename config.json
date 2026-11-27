@@ -228,7 +228,7 @@
   "e2eeTypingDuration": 3000,
   "e2ee": {
     "enable": true,
-    "saveType": "path",
+    "saveType": "memory",
     "devicePath": "database/e2ee-device.json",
     "notes": "Chiffrement de bout en bout (E2EE / Labyrinth) pour Messenger. Définissez enable sur true pour activer. saveType : 'memory' (clés de l'appareil perdues au redémarrage — rapide, sans fichiers), 'path' (persiste les clés d'identité de l'appareil vers devicePath — survit aux redémarrages, recommandé en production). devicePath n'est utilisé que lorsque saveType est sur 'path'. Conçu sur le modèle du bloc database."
   },
@@ -300,4 +300,5 @@
     "notes": "Intégration GitHub pour la synchronisation automatique des modifications. Passez enable sur true et renseignez repoOwner, repoName et token. Le jeton doit disposer des permissions repo. Définissez autoSyncOnUpdate sur true pour synchroniser automatiquement après les mises à jour."
   }
   }
-      
+
+    
