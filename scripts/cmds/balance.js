@@ -70,12 +70,19 @@ module.exports = {
       const allUsers = await usersData.getAll();
 
       const ranking = allUsers
-        .map(user => ({
-          id: user.userID,
-          money: Number(user.money || 0),
-          bank: Number(user.bank || 0),
-          total: Number(user.money || 0) + Number(user.bank || 0)
-        }))
+        .map(user => {
+          const bankData = user.pedroBank || {};
+
+          const money = Number(user.money || 0);
+          const bank = Number(bankData.bank || 0);
+
+          return {
+            id: user.userID,
+            money,
+            bank,
+            total: money + bank
+          };
+        })
         .sort((a, b) => b.total - a.total);
 
       return ranking;
@@ -232,7 +239,10 @@ module.exports = {
     const user = await getUser(targetID);
 
     const money = Number(user?.money || 0);
-    const bank = Number(user?.bank || 0);
+
+    // SOLDE DU COMPTE PEDRO BANK
+    const bank = Number(user?.pedroBank?.bank || 0);
+
     const total = money + bank;
 
     const fbUser = await getFacebookInfo(targetID);
@@ -420,4 +430,4 @@ module.exports = {
     }
   }
 };
-      
+    
